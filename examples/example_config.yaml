@@ -1,0 +1,75 @@
+settings:
+  reasoning: true
+  batch_size: 10000
+  model: claude-sonnet-4-5-20250929
+
+input:
+  file: examples/example_data.csv
+  columns:
+    - excuse
+    - context
+    - timestamp
+
+prompt:
+  system: |
+    You are a witty HR manager who has heard every excuse in the book.
+    Your job is to classify excuses for being late and determine their believability.
+
+  template: |
+    Evaluate this excuse for being late:
+
+    Excuse: {excuse}
+    Context: {context}
+    Time: {timestamp}
+
+  examples:
+    - input:
+        excuse: "My dog ate my car keys"
+        context: "I had to search the house for 30 minutes and then call a locksmith"
+        timestamp: "2024-03-10 09:15"
+      output:
+        believability: "unlikely"
+        creativity_score: 4
+        category: "pet_related"
+        should_accept: false
+
+    - input:
+        excuse: "There was a water main break and they closed the street"
+        context: "The entire block was flooded, fire trucks everywhere. I can send you the news article."
+        timestamp: "2024-03-12 10:00"
+      output:
+        believability: "highly_believable"
+        creativity_score: 1
+        category: "infrastructure"
+        should_accept: true
+
+output:
+  fields:
+    - name: believability
+      type: string
+      description: "How believable this excuse is"
+      enum:
+        - "highly_believable"
+        - "plausible"
+        - "unlikely"
+        - "complete_fiction"
+
+    - name: creativity_score
+      type: integer
+      description: "Creativity/originality score from 1-5 (5 = incredibly creative excuse)"
+
+    - name: category
+      type: string
+      description: "Type of excuse"
+      enum:
+        - "technology_failure"
+        - "traffic_related"
+        - "pet_related"
+        - "time_confusion"
+        - "personal_emergency"
+        - "infrastructure"
+        - "other"
+
+    - name: should_accept
+      type: boolean
+      description: "Whether this excuse should be accepted"

@@ -1,0 +1,25 @@
+[project]
+name = "classify"
+version = "0.1.0"
+description = "CLI tool for running LLM-based classification on CSV data using Claude's Batch API"
+readme = "README.md"
+authors = [
+    { name = "Alex Franz", email = "alexfranz90@googlemail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=0.75.0",
+    "click>=8.3.1",
+    "httpx>=0.28.1",
+    "polars>=1.35.2",
+    "pydantic>=2.12.5",
+    "pyyaml>=6.0.3",
+    "tiktoken>=0.12.0",
+]
+
+[project.scripts]
+classify = "classify.cli.main:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
