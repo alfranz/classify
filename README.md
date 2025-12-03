@@ -1,8 +1,32 @@
-# classify
+<div align="center">
+  <h1>classify</h1>
+  <strong>Classify thousands of CSV rows with Claude's Batch API</strong>
+  <br>
+  <br>
 
-> Classify thousands of CSV rows with Claude's Batch API. Pay half price, get results in ~1 hour.
+  <a href="https://github.com/alfranz/classify/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+  </a>
+  <a href="https://www.python.org/downloads/">
+    <img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python Version">
+  </a>
+
+  <br>
+  <br>
+</div>
+
+## Demo
+
+<div align="center">
+  <img src="assets/demo.gif" alt="classify CLI demo" width="800">
+  <p><em>From CSV to classified data in minutes</em></p>
+</div>
+
+## Overview
 
 Stop writing loops to classify data. `classify` turns CSV classification into a single command, handles batching automatically, and gives you prompt caching for free.
+
+Pay **50% less**, get results in ~1 hour, no rate limits.
 
 ## Why?
 
@@ -28,15 +52,16 @@ This tool does the second one for you.
 Requires Python 3.12+
 
 ```bash
-# Clone the repo
+# Install as an isolated tool (recommended)
+uv tool install git+https://github.com/alfranz/classify.git
+
+# Or install in current environment
 git clone https://github.com/alfranz/classify.git
 cd classify
-
-# Install with uv (recommended)
 uv pip install -e .
 
-# Or with pip
-pip install -e .
+# Or run without installing
+uvx --from git+https://github.com/alfranz/classify.git classify --help
 ```
 
 Set your API key:
