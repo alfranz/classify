@@ -11,6 +11,7 @@ from classify.core.models import (
     CostEstimate,
 )
 from classify.core.prompt_builder import estimate_tokens, validate_template
+from classify.core.console import print_success, print_warning, print_error
 
 
 class ValidationError(Exception):
@@ -51,33 +52,35 @@ def validate_config(config: ClassifyConfig, csv_path: Path) -> list[str]:
         csv_path: Path to input CSV
 
     Returns:
-        List of validation messages (empty if all valid)
+        List of validation messages (uses Rich formatting)
     """
     messages = []
 
     if config.settings.model not in MODEL_PRICING:
-        messages.append(f"⚠️  Unknown model: {config.settings.model} (cost estimation may be inaccurate)")
+        messages.append(f"[yellow]⚠[/yellow] Unknown model: [cyan]{config.settings.model}[/cyan] [dim](cost estimation may be inaccurate)[/dim]")
+    else:
+        messages.append(f"[green]✓[/green] Model: [cyan]{config.settings.model}[/cyan]")
 
     is_valid, error, row_count, col_count = validate_csv(csv_path, config.input.columns)
     if not is_valid:
-        messages.append(f"✗ CSV validation failed: {error}")
+        messages.append(f"[red]✗[/red] CSV validation failed: {error}")
         return messages
 
-    messages.append(f"✓ CSV file readable: {csv_path.name} ({row_count:,} rows, {col_count} columns)")
-    messages.append(f"✓ All referenced columns exist: {', '.join(config.input.columns)}")
+    messages.append(f"[green]✓[/green] CSV file readable: [cyan]{csv_path.name}[/cyan] [dim]({row_count:,} rows, {col_count} columns)[/dim]")
+    messages.append(f"[green]✓[/green] All referenced columns exist: [dim]{', '.join(config.input.columns)}[/dim]")
 
     sample_row = get_sample_row(csv_path)
     is_valid, error = validate_template(config.prompt.template, config.input.columns, sample_row)
     if not is_valid:
-        messages.append(f"✗ Template validation failed: {error}")
+        messages.append(f"[red]✗[/red] Template validation failed: {error}")
         return messages
 
     var_count = config.prompt.template.count("{")
-    messages.append(f"✓ Prompt template valid ({var_count} variables)")
+    messages.append(f"[green]✓[/green] Prompt template valid [dim]({var_count} variables)[/dim]")
 
     output_field_count = len(config.output.fields)
     total_fields = output_field_count * 2 if config.settings.reasoning else output_field_count
-    messages.append(f"✓ Output schema valid ({output_field_count} fields" + (f" + {output_field_count} reasoning fields)" if config.settings.reasoning else ")"))
+    messages.append(f"[green]✓[/green] Output schema valid [dim]({output_field_count} fields" + (f" + {output_field_count} reasoning fields)" if config.settings.reasoning else ")"))
 
     return messages
 

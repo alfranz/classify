@@ -4,6 +4,8 @@ from pathlib import Path
 
 import polars as pl
 
+from classify.core.console import console, create_table
+
 
 ID_COLUMN = "__classify_id"
 
@@ -64,6 +66,46 @@ def get_sample_row(csv_path: Path) -> dict[str, str]:
     if len(df) == 0:
         return {}
     return {col: str(df[col][0]) for col in df.columns}
+
+
+def preview_dataframe(df: pl.DataFrame, title: str = "Data Preview", max_rows: int = 5) -> None:
+    """Display a preview of the DataFrame as a rich table.
+
+    Args:
+        df: Polars DataFrame to preview
+        title: Title for the table
+        max_rows: Maximum number of rows to display
+    """
+    table = create_table(title=title)
+
+    # Add columns
+    for col_name in df.columns:
+        # Style the ID column differently
+        if col_name == ID_COLUMN:
+            table.add_column(col_name, style="dim", justify="right")
+        else:
+            table.add_column(col_name, overflow="fold")
+
+    # Add rows (limited to max_rows)
+    preview_df = df.head(max_rows)
+    for row in preview_df.iter_rows():
+        # Truncate long values for display
+        formatted_row = []
+        for value in row:
+            str_val = str(value) if value is not None else ""
+            if len(str_val) > 50:
+                str_val = str_val[:47] + "..."
+            formatted_row.append(str_val)
+        table.add_row(*formatted_row)
+
+    console.print(table)
+
+    # Show row count summary
+    total_rows = len(df)
+    if total_rows > max_rows:
+        console.print(f"[dim]Showing {max_rows} of {total_rows:,} rows[/dim]")
+    else:
+        console.print(f"[dim]{total_rows:,} total rows[/dim]")
 
 
 def merge_results(
