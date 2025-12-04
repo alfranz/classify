@@ -1,7 +1,7 @@
 settings:
   reasoning: true
   batch_size: 10000
-  model: claude-sonnet-4-5-20250929
+  model: claude-sonnet-4-5
 
 input:
   file: examples/example_data.csv

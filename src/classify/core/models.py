@@ -44,7 +44,7 @@ class Settings(BaseModel):
 
     reasoning: bool = False
     batch_size: int = 10000
-    model: str = "claude-sonnet-4-5-20250929"
+    model: str = "claude-sonnet-4-5"
 
 
 class InputConfig(BaseModel):
@@ -114,7 +114,7 @@ class GlobalConfig(BaseModel):
     """Global configuration stored in .classify/config.json."""
 
     anthropic_api_key: str | None = None
-    default_model: str = "claude-sonnet-4-5-20250929"
+    default_model: str = "claude-sonnet-4-5"
 
 
 class ModelPricing(BaseModel):
@@ -126,48 +126,47 @@ class ModelPricing(BaseModel):
     cache_read_per_mtok: float
 
 
+# Latest Claude 4.5 models only
+# Pricing: batch = 50% of regular, cache_write = 1.25x input, cache_read = 0.1x input
 MODEL_PRICING: dict[str, ModelPricing] = {
-    "claude-opus-4-5-20250929": ModelPricing(
+    # Claude Opus 4.5 - $5 input, $25 output (regular)
+    "claude-opus-4-5-20251101": ModelPricing(
         batch_input_per_mtok=2.50,
         batch_output_per_mtok=12.50,
         cache_write_per_mtok=3.125,
         cache_read_per_mtok=0.25,
     ),
-    "claude-opus-4-20250514": ModelPricing(
-        batch_input_per_mtok=7.50,
-        batch_output_per_mtok=37.50,
-        cache_write_per_mtok=9.375,
-        cache_read_per_mtok=0.75,
+    "claude-opus-4-5": ModelPricing(  # alias
+        batch_input_per_mtok=2.50,
+        batch_output_per_mtok=12.50,
+        cache_write_per_mtok=3.125,
+        cache_read_per_mtok=0.25,
     ),
+    # Claude Sonnet 4.5 - $3 input, $15 output (regular)
     "claude-sonnet-4-5-20250929": ModelPricing(
         batch_input_per_mtok=1.50,
         batch_output_per_mtok=7.50,
         cache_write_per_mtok=1.875,
         cache_read_per_mtok=0.15,
     ),
-    "claude-sonnet-4-20250514": ModelPricing(
+    "claude-sonnet-4-5": ModelPricing(  # alias
         batch_input_per_mtok=1.50,
         batch_output_per_mtok=7.50,
         cache_write_per_mtok=1.875,
         cache_read_per_mtok=0.15,
     ),
-    "claude-sonnet-3-7-20250219": ModelPricing(
-        batch_input_per_mtok=1.50,
-        batch_output_per_mtok=7.50,
-        cache_write_per_mtok=1.875,
-        cache_read_per_mtok=0.15,
-    ),
-    "claude-haiku-4-5": ModelPricing(
+    # Claude Haiku 4.5 - $1 input, $5 output (regular)
+    "claude-haiku-4-5-20251001": ModelPricing(
         batch_input_per_mtok=0.50,
         batch_output_per_mtok=2.50,
         cache_write_per_mtok=0.625,
         cache_read_per_mtok=0.05,
     ),
-    "claude-haiku-3-5-20241022": ModelPricing(
-        batch_input_per_mtok=0.40,
-        batch_output_per_mtok=2.00,
-        cache_write_per_mtok=0.50,
-        cache_read_per_mtok=0.04,
+    "claude-haiku-4-5": ModelPricing(  # alias
+        batch_input_per_mtok=0.50,
+        batch_output_per_mtok=2.50,
+        cache_write_per_mtok=0.625,
+        cache_read_per_mtok=0.05,
     ),
 }
 

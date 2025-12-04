@@ -188,6 +188,14 @@ def create_batch_request(
     return len(df)
 
 
+def _estimate_tokens_from_text(text: str) -> int:
+    """Estimate token count from text using character-based heuristic.
+
+    Uses ~4 characters per token as approximation (common for English text).
+    """
+    return max(1, len(text) // 4)
+
+
 def estimate_tokens(config: ClassifyConfig, sample_row: dict[str, str]) -> tuple[int, int, int]:
     """Estimate token counts for cost calculation.
 
@@ -198,25 +206,37 @@ def estimate_tokens(config: ClassifyConfig, sample_row: dict[str, str]) -> tuple
     Returns:
         Tuple of (cached_tokens, input_tokens, output_tokens)
     """
+    # Try tiktoken first, fall back to character-based estimation
+    encoding = None
     try:
         encoding = tiktoken.encoding_for_model(config.settings.model)
     except KeyError:
-        encoding = tiktoken.get_encoding("cl100k_base")
+        try:
+            encoding = tiktoken.get_encoding("cl100k_base")
+        except Exception:
+            pass  # Fall back to character-based estimation
+    except Exception:
+        pass  # Fall back to character-based estimation
 
-    system_tokens = len(encoding.encode(config.prompt.system))
+    def count_tokens(text: str) -> int:
+        if encoding:
+            return len(encoding.encode(text))
+        return _estimate_tokens_from_text(text)
+
+    system_tokens = count_tokens(config.prompt.system)
 
     few_shot_tokens = 0
     for example in config.prompt.examples:
         user_msg = render_prompt_template(config.prompt.template, example.input)
         assistant_msg = json.dumps(example.output)
-        few_shot_tokens += len(encoding.encode(user_msg)) + len(encoding.encode(assistant_msg))
+        few_shot_tokens += count_tokens(user_msg) + count_tokens(assistant_msg)
 
-    schema_tokens = len(encoding.encode(json.dumps(build_output_schema(config))))
+    schema_tokens = count_tokens(json.dumps(build_output_schema(config)))
 
     cached_tokens = system_tokens + few_shot_tokens + schema_tokens
 
     user_prompt = render_prompt_template(config.prompt.template, sample_row)
-    input_tokens = len(encoding.encode(user_prompt))
+    input_tokens = count_tokens(user_prompt)
 
     output_tokens = 50 * len(config.output.fields)
     if config.settings.reasoning:
