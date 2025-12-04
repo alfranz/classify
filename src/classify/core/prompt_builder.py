@@ -28,6 +28,18 @@ def build_output_schema(config: ClassifyConfig) -> dict[str, Any]:
         if field.enum:
             field_schema["enum"] = field.enum
 
+        # Numeric constraints (integer, number)
+        if field.minimum is not None:
+            field_schema["minimum"] = field.minimum
+        if field.maximum is not None:
+            field_schema["maximum"] = field.maximum
+        if field.exclusive_minimum is not None:
+            field_schema["exclusiveMinimum"] = field.exclusive_minimum
+        if field.exclusive_maximum is not None:
+            field_schema["exclusiveMaximum"] = field.exclusive_maximum
+        if field.multiple_of is not None:
+            field_schema["multipleOf"] = field.multiple_of
+
         properties[field.name] = field_schema
         required.append(field.name)
 
@@ -48,7 +60,7 @@ def build_output_schema(config: ClassifyConfig) -> dict[str, Any]:
 
 def _get_json_type(field_type: str) -> str:
     """Convert field type to JSON schema type."""
-    mapping = {"integer": "integer", "string": "string", "boolean": "boolean"}
+    mapping = {"integer": "integer", "number": "number", "string": "string", "boolean": "boolean"}
     return mapping.get(field_type, "string")
 
 

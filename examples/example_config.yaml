@@ -32,6 +32,7 @@ prompt:
         creativity_score: 4
         category: "pet_related"
         should_accept: false
+        confidence: 0.85
 
     - input:
         excuse: "There was a water main break and they closed the street"
@@ -42,6 +43,7 @@ prompt:
         creativity_score: 1
         category: "infrastructure"
         should_accept: true
+        confidence: 0.95
 
 output:
   fields:
@@ -56,7 +58,9 @@ output:
 
     - name: creativity_score
       type: integer
-      description: "Creativity/originality score from 1-5 (5 = incredibly creative excuse)"
+      description: "Creativity/originality score (5 = incredibly creative excuse)"
+      minimum: 1
+      maximum: 5
 
     - name: category
       type: string
@@ -73,3 +77,9 @@ output:
     - name: should_accept
       type: boolean
       description: "Whether this excuse should be accepted"
+
+    - name: confidence
+      type: number
+      description: "Model's confidence in the classification (0.0 to 1.0)"
+      minimum: 0.0
+      maximum: 1.0

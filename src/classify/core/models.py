@@ -12,6 +12,7 @@ class FieldType(str, Enum):
     """Supported output field types."""
 
     INTEGER = "integer"
+    NUMBER = "number"
     STRING = "string"
     BOOLEAN = "boolean"
 
@@ -22,7 +23,13 @@ class OutputField(BaseModel):
     name: str
     type: FieldType
     description: str
-    enum: list[str | int] | None = None
+    enum: list[str | int | float] | None = None
+    # Numeric constraints (integer, number)
+    minimum: int | float | None = None
+    maximum: int | float | None = None
+    exclusive_minimum: int | float | None = None
+    exclusive_maximum: int | float | None = None
+    multiple_of: int | float | None = None
 
 
 class FewShotExample(BaseModel):
