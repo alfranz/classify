@@ -91,6 +91,10 @@ output:
       type: string
       description: "The category"
       enum: ["A", "B", "C"]
+
+    - name: score
+      type: integer
+      description: "Score from 1 to 10"  # Include range in description
 ```
 
 ### 2. Add Reasoning for Better Results
@@ -197,6 +201,16 @@ Common causes:
 - Output doesn't match schema
 - Model couldn't parse the request
 - Token limits exceeded
+
+### Numeric Range Constraints
+
+For integer or number fields with ranges, specify the range in the description:
+
+```yaml
+- name: score
+  type: integer
+  description: "Score from 1 to 10"
+```
 
 ## Next Steps
 

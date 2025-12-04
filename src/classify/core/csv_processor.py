@@ -53,11 +53,12 @@ def validate_csv(csv_path: Path, required_columns: list[str]) -> tuple[bool, str
         return False, f"Failed to read CSV: {str(e)}", 0, 0
 
 
-def get_sample_row(csv_path: Path) -> dict[str, str]:
+def get_sample_row(csv_path: Path, columns: list[str] | None = None) -> dict[str, str]:
     """Get first row from CSV as dictionary.
 
     Args:
         csv_path: Path to CSV file
+        columns: Optional list of columns to include (defaults to all)
 
     Returns:
         Dictionary with column names as keys and first row values as strings
@@ -65,7 +66,8 @@ def get_sample_row(csv_path: Path) -> dict[str, str]:
     df = pl.read_csv(csv_path, n_rows=1)
     if len(df) == 0:
         return {}
-    return {col: str(df[col][0]) for col in df.columns}
+    cols_to_use = columns if columns else df.columns
+    return {col: str(df[col][0]) for col in cols_to_use if col in df.columns}
 
 
 def preview_dataframe(df: pl.DataFrame, title: str = "Data Preview", max_rows: int = 5) -> None:
