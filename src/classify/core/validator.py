@@ -63,13 +63,13 @@ def validate_config(config: ClassifyConfig, csv_path: Path) -> list[str]:
 
     is_valid, error, row_count, col_count = validate_csv(csv_path, config.input.columns)
     if not is_valid:
-        messages.append(f"[red]✗[/red] CSV validation failed: {error}")
+        messages.append(f"[red]✗[/red] {error}")
         return messages
 
     messages.append(f"[green]✓[/green] CSV file readable: [cyan]{csv_path.name}[/cyan] [dim]({row_count:,} rows, {col_count} columns)[/dim]")
     messages.append(f"[green]✓[/green] All referenced columns exist: [dim]{', '.join(config.input.columns)}[/dim]")
 
-    sample_row = get_sample_row(csv_path)
+    sample_row = get_sample_row(csv_path, config.input.columns)
     is_valid, error = validate_template(config.prompt.template, config.input.columns, sample_row)
     if not is_valid:
         messages.append(f"[red]✗[/red] Template validation failed: {error}")
@@ -100,7 +100,7 @@ def calculate_cost(config: ClassifyConfig, csv_path: Path) -> CostEstimate:
     df = pl.read_csv(csv_path)
     total_requests = len(df)
 
-    sample_row = get_sample_row(csv_path)
+    sample_row = get_sample_row(csv_path, config.input.columns)
     cached_tokens, input_tokens, output_tokens = estimate_tokens(config, sample_row)
 
     pricing = MODEL_PRICING.get(
@@ -148,7 +148,7 @@ def run_preflight_check(config_path: Path) -> tuple[ClassifyConfig, CostEstimate
 
     messages = validate_config(config, csv_path)
 
-    has_errors = any(msg.startswith("✗") for msg in messages)
+    has_errors = any("[red]✗[/red]" in msg for msg in messages)
     if has_errors:
         raise ValidationError("\n".join(messages))
 

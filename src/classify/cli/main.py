@@ -95,6 +95,15 @@ def check(config_file):
     config_path = Path(config_file)
 
     try:
+        # Check for API key first
+        init_classify_dir()
+        global_config = load_global_config()
+        if global_config.anthropic_api_key:
+            console.print("[green]✓[/green] ANTHROPIC_API_KEY found")
+        else:
+            console.print("[red]✗[/red] ANTHROPIC_API_KEY not found in environment or config")
+            sys.exit(1)
+
         config, cost_estimate, messages = run_preflight_check(config_path)
 
         # Display validation messages

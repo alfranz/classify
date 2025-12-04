@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 import polars as pl
-import tiktoken
 
 from classify.core.models import ClassifyConfig, OutputField
 
@@ -28,6 +27,10 @@ def build_output_schema(config: ClassifyConfig) -> dict[str, Any]:
         if field.enum:
             field_schema["enum"] = field.enum
 
+        # Note: Numeric constraints (minimum, maximum, etc.) are NOT supported by
+        # Anthropic's output_format.schema. They are kept in the config for documentation
+        # purposes, and the model will follow constraints specified in the description.
+
         properties[field.name] = field_schema
         required.append(field.name)
 
@@ -48,7 +51,7 @@ def build_output_schema(config: ClassifyConfig) -> dict[str, Any]:
 
 def _get_json_type(field_type: str) -> str:
     """Convert field type to JSON schema type."""
-    mapping = {"integer": "integer", "string": "string", "boolean": "boolean"}
+    mapping = {"integer": "integer", "number": "number", "string": "string", "boolean": "boolean"}
     return mapping.get(field_type, "string")
 
 
@@ -176,6 +179,14 @@ def create_batch_request(
     return len(df)
 
 
+def _estimate_tokens(text: str) -> int:
+    """Estimate token count using character-based heuristic.
+
+    Uses ~4 characters per token as approximation (common for English text).
+    """
+    return max(1, len(text) // 4)
+
+
 def estimate_tokens(config: ClassifyConfig, sample_row: dict[str, str]) -> tuple[int, int, int]:
     """Estimate token counts for cost calculation.
 
@@ -186,25 +197,20 @@ def estimate_tokens(config: ClassifyConfig, sample_row: dict[str, str]) -> tuple
     Returns:
         Tuple of (cached_tokens, input_tokens, output_tokens)
     """
-    try:
-        encoding = tiktoken.encoding_for_model(config.settings.model)
-    except KeyError:
-        encoding = tiktoken.get_encoding("cl100k_base")
-
-    system_tokens = len(encoding.encode(config.prompt.system))
+    system_tokens = _estimate_tokens(config.prompt.system)
 
     few_shot_tokens = 0
     for example in config.prompt.examples:
         user_msg = render_prompt_template(config.prompt.template, example.input)
         assistant_msg = json.dumps(example.output)
-        few_shot_tokens += len(encoding.encode(user_msg)) + len(encoding.encode(assistant_msg))
+        few_shot_tokens += _estimate_tokens(user_msg) + _estimate_tokens(assistant_msg)
 
-    schema_tokens = len(encoding.encode(json.dumps(build_output_schema(config))))
+    schema_tokens = _estimate_tokens(json.dumps(build_output_schema(config)))
 
     cached_tokens = system_tokens + few_shot_tokens + schema_tokens
 
     user_prompt = render_prompt_template(config.prompt.template, sample_row)
-    input_tokens = len(encoding.encode(user_prompt))
+    input_tokens = _estimate_tokens(user_prompt)
 
     output_tokens = 50 * len(config.output.fields)
     if config.settings.reasoning:
