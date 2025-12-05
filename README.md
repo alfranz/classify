@@ -245,8 +245,8 @@ classify cancel <batch_id>
 
 Define your output fields with:
 
-- **type**: `string`, `integer`, `number`, `boolean`, `array`, `object`
-- **description**: What the field represents
+- **type**: `string`, `integer`, `number`, `boolean`
+- **description**: What the field represents (include range constraints here for numbers)
 - **enum**: Allowed values (for strings)
 
 ```yaml
