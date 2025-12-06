@@ -71,7 +71,9 @@ def save_batch_index(index: BatchIndex) -> None:
         json.dump(index.model_dump(), f, indent=2, default=str)
 
 
-def create_batch_directory(batch_id: str, config: ClassifyConfig, config_path: Path) -> Path:
+def create_batch_directory(
+    batch_id: str, config: ClassifyConfig, config_path: Path
+) -> Path:
     """Create directory for batch job.
 
     Args:

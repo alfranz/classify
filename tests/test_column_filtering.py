@@ -7,7 +7,6 @@ references a subset, only the configured columns are used in API requests.
 import json
 from pathlib import Path
 
-import pytest
 
 from classify.core.csv_processor import get_sample_row, add_ids_to_csv
 from classify.core.prompt_builder import (

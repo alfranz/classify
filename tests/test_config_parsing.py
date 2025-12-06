@@ -1,13 +1,12 @@
 """Tests for YAML config parsing and validation."""
 
 from pathlib import Path
-import tempfile
 
 import pytest
 import yaml
 
 from classify.core.validator import load_config, ValidationError
-from classify.core.models import ClassifyConfig, FieldType
+from classify.core.models import FieldType
 
 
 class TestYamlConfigParsing:
@@ -105,7 +104,10 @@ class TestYamlConfigParsing:
         assert config.settings.model == "claude-haiku-4-5"
         assert config.input.columns == ["title", "body"]
         assert len(config.prompt.examples) == 2
-        assert config.prompt.examples[0].input == {"title": "Great!", "body": "Loved it"}
+        assert config.prompt.examples[0].input == {
+            "title": "Great!",
+            "body": "Loved it",
+        }
         assert config.prompt.examples[0].output == {"sentiment": "positive", "score": 5}
         assert len(config.output.fields) == 2
         assert config.output.fields[0].enum == ["positive", "negative", "neutral"]

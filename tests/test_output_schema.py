@@ -1,6 +1,5 @@
 """Tests for output schema generation for Claude Batch API."""
 
-import pytest
 
 from classify.core.prompt_builder import build_output_schema
 from classify.core.models import (
@@ -31,9 +30,11 @@ class TestOutputSchemaGeneration:
 
     def test_schema_has_required_structure(self) -> None:
         """Test schema has correct top-level structure for Claude API."""
-        config = create_config_with_fields([
-            OutputField(name="result", type=FieldType.STRING, description="Result"),
-        ])
+        config = create_config_with_fields(
+            [
+                OutputField(name="result", type=FieldType.STRING, description="Result"),
+            ]
+        )
 
         schema = build_output_schema(config)
 
@@ -44,12 +45,22 @@ class TestOutputSchemaGeneration:
 
     def test_field_types_map_to_json_schema_types(self) -> None:
         """Test that all field types map to correct JSON schema types."""
-        config = create_config_with_fields([
-            OutputField(name="text_field", type=FieldType.STRING, description="String"),
-            OutputField(name="int_field", type=FieldType.INTEGER, description="Integer"),
-            OutputField(name="num_field", type=FieldType.NUMBER, description="Number"),
-            OutputField(name="bool_field", type=FieldType.BOOLEAN, description="Boolean"),
-        ])
+        config = create_config_with_fields(
+            [
+                OutputField(
+                    name="text_field", type=FieldType.STRING, description="String"
+                ),
+                OutputField(
+                    name="int_field", type=FieldType.INTEGER, description="Integer"
+                ),
+                OutputField(
+                    name="num_field", type=FieldType.NUMBER, description="Number"
+                ),
+                OutputField(
+                    name="bool_field", type=FieldType.BOOLEAN, description="Boolean"
+                ),
+            ]
+        )
 
         schema = build_output_schema(config)
 
@@ -60,11 +71,13 @@ class TestOutputSchemaGeneration:
 
     def test_all_fields_marked_as_required(self) -> None:
         """Test that all defined fields appear in required array."""
-        config = create_config_with_fields([
-            OutputField(name="field_a", type=FieldType.STRING, description="A"),
-            OutputField(name="field_b", type=FieldType.INTEGER, description="B"),
-            OutputField(name="field_c", type=FieldType.BOOLEAN, description="C"),
-        ])
+        config = create_config_with_fields(
+            [
+                OutputField(name="field_a", type=FieldType.STRING, description="A"),
+                OutputField(name="field_b", type=FieldType.INTEGER, description="B"),
+                OutputField(name="field_c", type=FieldType.BOOLEAN, description="C"),
+            ]
+        )
 
         schema = build_output_schema(config)
 
@@ -72,14 +85,16 @@ class TestOutputSchemaGeneration:
 
     def test_enum_values_included_in_schema(self) -> None:
         """Test that enum fields include allowed values in schema."""
-        config = create_config_with_fields([
-            OutputField(
-                name="sentiment",
-                type=FieldType.STRING,
-                description="Sentiment classification",
-                enum=["positive", "negative", "neutral"],
-            ),
-        ])
+        config = create_config_with_fields(
+            [
+                OutputField(
+                    name="sentiment",
+                    type=FieldType.STRING,
+                    description="Sentiment classification",
+                    enum=["positive", "negative", "neutral"],
+                ),
+            ]
+        )
 
         schema = build_output_schema(config)
 
@@ -91,14 +106,16 @@ class TestOutputSchemaGeneration:
 
     def test_enum_with_numeric_values(self) -> None:
         """Test that enum works with numeric values."""
-        config = create_config_with_fields([
-            OutputField(
-                name="rating",
-                type=FieldType.INTEGER,
-                description="Rating",
-                enum=[1, 2, 3, 4, 5],
-            ),
-        ])
+        config = create_config_with_fields(
+            [
+                OutputField(
+                    name="rating",
+                    type=FieldType.INTEGER,
+                    description="Rating",
+                    enum=[1, 2, 3, 4, 5],
+                ),
+            ]
+        )
 
         schema = build_output_schema(config)
 
@@ -107,13 +124,15 @@ class TestOutputSchemaGeneration:
 
     def test_field_descriptions_included(self) -> None:
         """Test that field descriptions are passed to schema."""
-        config = create_config_with_fields([
-            OutputField(
-                name="category",
-                type=FieldType.STRING,
-                description="The primary category of the input",
-            ),
-        ])
+        config = create_config_with_fields(
+            [
+                OutputField(
+                    name="category",
+                    type=FieldType.STRING,
+                    description="The primary category of the input",
+                ),
+            ]
+        )
 
         schema = build_output_schema(config)
 
@@ -126,7 +145,9 @@ class TestOutputSchemaGeneration:
         """Test that reasoning=True adds {field}_reasoning for each field."""
         config = create_config_with_fields(
             fields=[
-                OutputField(name="sentiment", type=FieldType.STRING, description="Sentiment"),
+                OutputField(
+                    name="sentiment", type=FieldType.STRING, description="Sentiment"
+                ),
                 OutputField(name="score", type=FieldType.INTEGER, description="Score"),
             ],
             reasoning=True,
