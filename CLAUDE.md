@@ -13,7 +13,7 @@ This file provides guidance to Claude Code when working on this project.
 - **Pydantic** - Data validation and models
 - **Polars** - DataFrame operations for CSV processing
 - **Anthropic SDK** - Batch API integration
-- **tiktoken** - Token counting for cost estimation
+- **Rich** - Terminal output formatting
 - **PyYAML** - Config file parsing
 
 ## Project Structure
@@ -28,7 +28,8 @@ src/classify/
     ├── prompt_builder.py # Batch request generation
     ├── csv_processor.py # CSV I/O and merging
     ├── storage.py       # State management (.classify directory)
-    └── results.py       # Batch response parsing
+    ├── results.py       # Batch response parsing
+    └── console.py       # Rich console output helpers
 ```
 
 ## Key Commands
