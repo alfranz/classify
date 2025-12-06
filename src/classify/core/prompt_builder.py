@@ -6,7 +6,7 @@ from typing import Any
 
 import polars as pl
 
-from classify.core.models import ClassifyConfig, OutputField
+from classify.core.models import ClassifyConfig
 
 
 def build_output_schema(config: ClassifyConfig) -> dict[str, Any]:
@@ -22,7 +22,10 @@ def build_output_schema(config: ClassifyConfig) -> dict[str, Any]:
     required = []
 
     for field in config.output.fields:
-        field_schema: dict[str, Any] = {"type": _get_json_type(field.type), "description": field.description}
+        field_schema: dict[str, Any] = {
+            "type": _get_json_type(field.type),
+            "description": field.description,
+        }
 
         if field.enum:
             field_schema["enum"] = field.enum
@@ -51,7 +54,12 @@ def build_output_schema(config: ClassifyConfig) -> dict[str, Any]:
 
 def _get_json_type(field_type: str) -> str:
     """Convert field type to JSON schema type."""
-    mapping = {"integer": "integer", "number": "number", "string": "string", "boolean": "boolean"}
+    mapping = {
+        "integer": "integer",
+        "number": "number",
+        "string": "string",
+        "boolean": "boolean",
+    }
     return mapping.get(field_type, "string")
 
 
@@ -68,7 +76,9 @@ def render_prompt_template(template: str, row: dict[str, str]) -> str:
     return template.format(**row)
 
 
-def validate_template(template: str, columns: list[str], sample_row: dict[str, str]) -> tuple[bool, str]:
+def validate_template(
+    template: str, columns: list[str], sample_row: dict[str, str]
+) -> tuple[bool, str]:
     """Validate prompt template.
 
     Args:
@@ -80,7 +90,7 @@ def validate_template(template: str, columns: list[str], sample_row: dict[str, s
         Tuple of (is_valid, error_message)
     """
     try:
-        rendered = template.format(**sample_row)
+        template.format(**sample_row)
         return True, ""
     except KeyError as e:
         return False, f"Template references undefined variable: {e}"
@@ -187,7 +197,9 @@ def _estimate_tokens(text: str) -> int:
     return max(1, len(text) // 4)
 
 
-def estimate_tokens(config: ClassifyConfig, sample_row: dict[str, str]) -> tuple[int, int, int]:
+def estimate_tokens(
+    config: ClassifyConfig, sample_row: dict[str, str]
+) -> tuple[int, int, int]:
     """Estimate token counts for cost calculation.
 
     Args:

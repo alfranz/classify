@@ -29,7 +29,9 @@ def add_ids_to_csv(input_path: Path, output_path: Path) -> int:
     return row_count
 
 
-def validate_csv(csv_path: Path, required_columns: list[str]) -> tuple[bool, str, int, int]:
+def validate_csv(
+    csv_path: Path, required_columns: list[str]
+) -> tuple[bool, str, int, int]:
     """Validate CSV file and check for required columns.
 
     Args:
@@ -46,7 +48,12 @@ def validate_csv(csv_path: Path, required_columns: list[str]) -> tuple[bool, str
 
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            return False, f"Missing columns: {', '.join(missing_columns)}", row_count, column_count
+            return (
+                False,
+                f"Missing columns: {', '.join(missing_columns)}",
+                row_count,
+                column_count,
+            )
 
         return True, "", row_count, column_count
     except Exception as e:
@@ -70,7 +77,9 @@ def get_sample_row(csv_path: Path, columns: list[str] | None = None) -> dict[str
     return {col: str(df[col][0]) for col in cols_to_use if col in df.columns}
 
 
-def preview_dataframe(df: pl.DataFrame, title: str = "Data Preview", max_rows: int = 5) -> None:
+def preview_dataframe(
+    df: pl.DataFrame, title: str = "Data Preview", max_rows: int = 5
+) -> None:
     """Display a preview of the DataFrame as a rich table.
 
     Args:

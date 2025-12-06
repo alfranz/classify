@@ -57,6 +57,14 @@ uv sync
 # Run with uv
 uv run classify <command>
 
+# Linting and formatting (ruff)
+uv run ruff check .              # Check for lint errors
+uv run ruff check --fix .        # Auto-fix lint errors
+uv run ruff format .             # Format code
+
+# Run tests
+uv run pytest tests/ -v
+
 # Type checking (if adding)
 uv run mypy src/classify
 ```
@@ -87,23 +95,15 @@ See `examples/example_config.yaml` for complete example.
 
 ## Testing
 
-**No tests currently exist.** Tests should be added with the following approach:
+Unit tests exist in `tests/`:
+- `test_config_parsing.py` - YAML config parsing and validation
+- `test_column_filtering.py` - CSV column filtering in prompt building
+- `test_output_schema.py` - JSON schema generation for Claude API
 
-### Unit Tests
-Test critical parsing and processing logic:
-- CSV parsing and ID column handling (`csv_processor.py`)
-- Template parsing and variable population (`prompt_builder.py`)
-- Config validation (`validator.py`)
-- Result parsing from batch responses (`results.py`)
-
-### Integration Tests
-Minimal end-to-end tests with:
-- Small datasets (5-10 rows)
-- `claude-haiku-4-5-20251001` model for cost efficiency
-- Test complete flow: config validation -> batch creation -> result parsing
-
-### Test Data
-Use `examples/example_data.csv` (5 rows) and `examples/example_config.yaml` as base fixtures.
+Run tests with:
+```bash
+uv run pytest tests/ -v
+```
 
 ## Important Patterns
 

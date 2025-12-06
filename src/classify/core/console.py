@@ -3,9 +3,14 @@
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
+from rich.progress import (
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    BarColumn,
+    TaskProgressColumn,
+)
 from rich.text import Text
-from rich.tree import Tree
 from rich import box
 
 # Global console instance for consistent output
@@ -30,12 +35,7 @@ def get_status_text(status: str) -> Text:
 
 def create_table(title: str | None = None, **kwargs) -> Table:
     """Create a consistently styled table."""
-    return Table(
-        title=title,
-        box=box.ROUNDED,
-        header_style="bold cyan",
-        **kwargs
-    )
+    return Table(title=title, box=box.ROUNDED, header_style="bold cyan", **kwargs)
 
 
 def create_progress() -> Progress:
@@ -85,17 +85,15 @@ def display_cost_estimate(estimate, row_count: int) -> None:
     token_table.add_row(
         "Cached (system + examples + schema)",
         f"~{estimate.cached_tokens:,}",
-        "Cached after first request"
+        "Cached after first request",
     )
     token_table.add_row(
-        "Input (row data)",
-        f"~{estimate.avg_input_tokens:,}",
-        "Average per row"
+        "Input (row data)", f"~{estimate.avg_input_tokens:,}", "Average per row"
     )
     token_table.add_row(
         "Output (classifications)",
         f"~{estimate.estimated_output_tokens:,}",
-        "Estimated"
+        "Estimated",
     )
 
     # Cost breakdown table
@@ -103,12 +101,21 @@ def display_cost_estimate(estimate, row_count: int) -> None:
     cost_table.add_column("Item", style="cyan")
     cost_table.add_column("Cost", justify="right", style="green")
 
-    cost_table.add_row("Cache write (first request)", f"${estimate.cache_write_cost:.2f}")
-    cost_table.add_row(f"Cache reads ({row_count - 1:,} requests)", f"${estimate.cache_read_cost:.2f}")
-    cost_table.add_row("Input tokens (50% batch discount)", f"${estimate.input_cost:.2f}")
+    cost_table.add_row(
+        "Cache write (first request)", f"${estimate.cache_write_cost:.2f}"
+    )
+    cost_table.add_row(
+        f"Cache reads ({row_count - 1:,} requests)", f"${estimate.cache_read_cost:.2f}"
+    )
+    cost_table.add_row(
+        "Input tokens (50% batch discount)", f"${estimate.input_cost:.2f}"
+    )
     cost_table.add_row("Output tokens", f"${estimate.output_cost:.2f}")
     cost_table.add_row("", "")  # Separator
-    cost_table.add_row("[bold]Total estimated cost[/bold]", f"[bold green]${estimate.total_cost:.2f}[/bold green]")
+    cost_table.add_row(
+        "[bold]Total estimated cost[/bold]",
+        f"[bold green]${estimate.total_cost:.2f}[/bold green]",
+    )
 
     # Display tables
     console.print()
@@ -129,7 +136,6 @@ def display_batch_status(batch_id: str, status: str, info: dict) -> None:
         status: Batch status value (string)
         info: Batch info dictionary from API
     """
-    from rich.panel import Panel
 
     # Header panel with batch ID and status
     status_text = get_status_text(status)
@@ -137,7 +143,7 @@ def display_batch_status(batch_id: str, status: str, info: dict) -> None:
     console.print(Panel(header, title="Batch Status", border_style="cyan"))
 
     # Timestamps
-    console.print(f"\n[bold]Timestamps[/bold]")
+    console.print("\n[bold]Timestamps[/bold]")
     console.print(f"  Created: {info['created_at']}")
     if info.get("ended_at"):
         console.print(f"  Ended:   {info['ended_at']}")
@@ -151,7 +157,7 @@ def display_batch_status(batch_id: str, status: str, info: dict) -> None:
     canceled = counts.get("canceled", 0)
     expired = counts.get("expired", 0)
 
-    console.print(f"\n[bold]Request Progress[/bold]")
+    console.print("\n[bold]Request Progress[/bold]")
 
     # Always show counts if we have any data
     if total > 0:
@@ -165,7 +171,9 @@ def display_batch_status(batch_id: str, status: str, info: dict) -> None:
 
         bar = f"[green]{'█' * succeeded_bars}[/green][red]{'█' * errored_bars}[/red][dim]{'░' * remaining_bars}[/dim]"
 
-        console.print(f"  {bar} {completed:,}/{total:,} ({(completed/total)*100:.1f}%)")
+        console.print(
+            f"  {bar} {completed:,}/{total:,} ({(completed / total) * 100:.1f}%)"
+        )
 
     # Always show detailed counts
     console.print()
@@ -182,7 +190,9 @@ def display_batch_status(batch_id: str, status: str, info: dict) -> None:
         console.print(f"  [dim]⧗ Expired:[/dim]   {expired:,}")
 
 
-def display_results_summary(success_count: int, error_count: int, output_path, errors_path=None) -> None:
+def display_results_summary(
+    success_count: int, error_count: int, output_path, errors_path=None
+) -> None:
     """Display results summary with rich formatting.
 
     Args:
@@ -191,7 +201,6 @@ def display_results_summary(success_count: int, error_count: int, output_path, e
         output_path: Path to output file
         errors_path: Optional path to errors file
     """
-    from rich.panel import Panel
 
     total = success_count + error_count
     success_pct = (success_count / total * 100) if total > 0 else 0

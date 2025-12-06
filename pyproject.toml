@@ -20,6 +20,12 @@ dependencies = [
 [project.scripts]
 classify = "classify.cli.main:cli"
 
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.14.8",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

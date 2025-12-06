@@ -11,7 +11,6 @@ from classify.core.models import (
     CostEstimate,
 )
 from classify.core.prompt_builder import estimate_tokens, validate_template
-from classify.core.console import print_success, print_warning, print_error
 
 
 class ValidationError(Exception):
@@ -57,7 +56,9 @@ def validate_config(config: ClassifyConfig, csv_path: Path) -> list[str]:
     messages = []
 
     if config.settings.model not in MODEL_PRICING:
-        messages.append(f"[yellow]⚠[/yellow] Unknown model: [cyan]{config.settings.model}[/cyan] [dim](cost estimation may be inaccurate)[/dim]")
+        messages.append(
+            f"[yellow]⚠[/yellow] Unknown model: [cyan]{config.settings.model}[/cyan] [dim](cost estimation may be inaccurate)[/dim]"
+        )
     else:
         messages.append(f"[green]✓[/green] Model: [cyan]{config.settings.model}[/cyan]")
 
@@ -66,21 +67,35 @@ def validate_config(config: ClassifyConfig, csv_path: Path) -> list[str]:
         messages.append(f"[red]✗[/red] {error}")
         return messages
 
-    messages.append(f"[green]✓[/green] CSV file readable: [cyan]{csv_path.name}[/cyan] [dim]({row_count:,} rows, {col_count} columns)[/dim]")
-    messages.append(f"[green]✓[/green] All referenced columns exist: [dim]{', '.join(config.input.columns)}[/dim]")
+    messages.append(
+        f"[green]✓[/green] CSV file readable: [cyan]{csv_path.name}[/cyan] [dim]({row_count:,} rows, {col_count} columns)[/dim]"
+    )
+    messages.append(
+        f"[green]✓[/green] All referenced columns exist: [dim]{', '.join(config.input.columns)}[/dim]"
+    )
 
     sample_row = get_sample_row(csv_path, config.input.columns)
-    is_valid, error = validate_template(config.prompt.template, config.input.columns, sample_row)
+    is_valid, error = validate_template(
+        config.prompt.template, config.input.columns, sample_row
+    )
     if not is_valid:
         messages.append(f"[red]✗[/red] Template validation failed: {error}")
         return messages
 
     var_count = config.prompt.template.count("{")
-    messages.append(f"[green]✓[/green] Prompt template valid [dim]({var_count} variables)[/dim]")
+    messages.append(
+        f"[green]✓[/green] Prompt template valid [dim]({var_count} variables)[/dim]"
+    )
 
     output_field_count = len(config.output.fields)
-    total_fields = output_field_count * 2 if config.settings.reasoning else output_field_count
-    messages.append(f"[green]✓[/green] Output schema valid [dim]({output_field_count} fields" + (f" + {output_field_count} reasoning fields)" if config.settings.reasoning else ")"))
+    messages.append(
+        f"[green]✓[/green] Output schema valid [dim]({output_field_count} fields"
+        + (
+            f" + {output_field_count} reasoning fields)"
+            if config.settings.reasoning
+            else ")"
+        )
+    )
 
     return messages
 
@@ -109,9 +124,15 @@ def calculate_cost(config: ClassifyConfig, csv_path: Path) -> CostEstimate:
     )
 
     cache_write_cost = (cached_tokens / 1_000_000) * pricing.cache_write_per_mtok
-    cache_read_cost = ((total_requests - 1) * cached_tokens / 1_000_000) * pricing.cache_read_per_mtok
-    input_cost = (total_requests * input_tokens / 1_000_000) * pricing.batch_input_per_mtok
-    output_cost = (total_requests * output_tokens / 1_000_000) * pricing.batch_output_per_mtok
+    cache_read_cost = (
+        (total_requests - 1) * cached_tokens / 1_000_000
+    ) * pricing.cache_read_per_mtok
+    input_cost = (
+        total_requests * input_tokens / 1_000_000
+    ) * pricing.batch_input_per_mtok
+    output_cost = (
+        total_requests * output_tokens / 1_000_000
+    ) * pricing.batch_output_per_mtok
 
     total_cost = cache_write_cost + cache_read_cost + input_cost + output_cost
 
@@ -128,7 +149,9 @@ def calculate_cost(config: ClassifyConfig, csv_path: Path) -> CostEstimate:
     )
 
 
-def run_preflight_check(config_path: Path) -> tuple[ClassifyConfig, CostEstimate, list[str]]:
+def run_preflight_check(
+    config_path: Path,
+) -> tuple[ClassifyConfig, CostEstimate, list[str]]:
     """Run complete pre-flight validation and cost estimation.
 
     Args:

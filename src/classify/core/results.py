@@ -31,7 +31,11 @@ def parse_batch_results(
 
             record = json.loads(line)
             custom_id = record.get("custom_id", "")
-            row_id = int(custom_id.replace("row_", "")) if custom_id.startswith("row_") else 0
+            row_id = (
+                int(custom_id.replace("row_", ""))
+                if custom_id.startswith("row_")
+                else 0
+            )
 
             result = record.get("result")
             if not result:
@@ -49,7 +53,9 @@ def parse_batch_results(
                     {
                         "row_id": row_id,
                         "custom_id": custom_id,
-                        "error": result.get("error", {}).get("message", "Unknown error"),
+                        "error": result.get("error", {}).get(
+                            "message", "Unknown error"
+                        ),
                     }
                 )
                 continue

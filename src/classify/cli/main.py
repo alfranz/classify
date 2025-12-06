@@ -8,7 +8,7 @@ import yaml
 
 from classify.api.batch_client import BatchClient
 from classify.core.csv_processor import add_ids_to_csv, merge_results
-from classify.core.models import BatchStatus, ClassifyConfig
+from classify.core.models import BatchStatus
 from classify.core.prompt_builder import create_batch_request
 from classify.core.results import parse_batch_results
 from classify.core.storage import (
@@ -19,7 +19,6 @@ from classify.core.storage import (
     load_batch_metadata,
     load_global_config,
     save_batch_metadata,
-    save_errors,
 )
 from classify.core.validator import ValidationError, run_preflight_check
 from classify.core.console import (
@@ -101,7 +100,9 @@ def check(config_file):
         if global_config.anthropic_api_key:
             console.print("[green]✓[/green] ANTHROPIC_API_KEY found")
         else:
-            console.print("[red]✗[/red] ANTHROPIC_API_KEY not found in environment or config")
+            console.print(
+                "[red]✗[/red] ANTHROPIC_API_KEY not found in environment or config"
+            )
             sys.exit(1)
 
         config, cost_estimate, messages = run_preflight_check(config_path)
@@ -138,7 +139,9 @@ def run(config_file, dry_run):
         for message in messages:
             console.print(message)
         console.print()
-        console.print(f"[bold]Total estimated cost:[/bold] [green]${cost_estimate.total_cost:.2f}[/green]")
+        console.print(
+            f"[bold]Total estimated cost:[/bold] [green]${cost_estimate.total_cost:.2f}[/green]"
+        )
         console.print()
 
         if not dry_run:
@@ -150,7 +153,9 @@ def run(config_file, dry_run):
         global_config = load_global_config()
 
         if not global_config.anthropic_api_key:
-            console.print("[red]Error: ANTHROPIC_API_KEY not found in environment or config[/red]")
+            console.print(
+                "[red]Error: ANTHROPIC_API_KEY not found in environment or config[/red]"
+            )
             sys.exit(1)
 
         temp_batch_id = f"temp_{Path(config_file).stem}"
@@ -235,7 +240,9 @@ def status(batch_id):
         display_batch_status(batch_id, batch_status.value, info)
 
         if batch_status == BatchStatus.ENDED:
-            console.print(f"\n[dim]Download results:[/dim] classify results {batch_id} --output results.csv")
+            console.print(
+                f"\n[dim]Download results:[/dim] classify results {batch_id} --output results.csv"
+            )
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -270,7 +277,9 @@ def results(batch_id, output):
 
             errors_path = batch_dir / "errors.json"
             task2 = progress.add_task("[cyan]Parsing results...", total=1)
-            success_count, error_count = parse_batch_results(response_path, Path(output), errors_path)
+            success_count, error_count = parse_batch_results(
+                response_path, Path(output), errors_path
+            )
             progress.update(task2, completed=1)
 
         metadata = load_batch_metadata(batch_dir)
@@ -280,7 +289,9 @@ def results(batch_id, output):
         save_batch_metadata(batch_dir, metadata)
 
         console.print()
-        display_results_summary(success_count, error_count, output, errors_path if error_count > 0 else None)
+        display_results_summary(
+            success_count, error_count, output, errors_path if error_count > 0 else None
+        )
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -290,7 +301,12 @@ def results(batch_id, output):
 @cli.command()
 @click.argument("batch_id")
 @click.option("--results", "-r", "results_file", required=True, help="Results CSV file")
-@click.option("--original", "-i", "original_file", help="Original CSV (default: uses stored input)")
+@click.option(
+    "--original",
+    "-i",
+    "original_file",
+    help="Original CSV (default: uses stored input)",
+)
 @click.option("--output", "-o", required=True, help="Output merged CSV file")
 def merge(batch_id, results_file, original_file, output):
     """Merge classification results with original CSV."""
@@ -335,15 +351,20 @@ def list():
         global_config = load_global_config()
         if global_config.anthropic_api_key:
             from classify.core.storage import save_batch_index
+
             client = BatchClient(global_config.anthropic_api_key)
             with create_progress() as progress:
-                task = progress.add_task("[cyan]Fetching batch status...", total=len(index.batches))
+                task = progress.add_task(
+                    "[cyan]Fetching batch status...", total=len(index.batches)
+                )
 
                 for batch_id, metadata in index.batches.items():
                     try:
                         batch_status, info = client.get_batch_status(batch_id)
                         metadata.status = batch_status
-                        metadata.completed_requests = info["request_counts"]["succeeded"]
+                        metadata.completed_requests = info["request_counts"][
+                            "succeeded"
+                        ]
                         metadata.failed_requests = info["request_counts"]["errored"]
 
                         batch_dir = get_batch_directory(batch_id)
@@ -373,7 +394,7 @@ def list():
 
             # Calculate progress percentage
             progress = f"{completed}/{total}"
-            progress_pct = f"{(completed/total)*100:.0f}%" if total > 0 else "-"
+            progress_pct = f"{(completed / total) * 100:.0f}%" if total > 0 else "-"
 
             table.add_row(
                 batch_id[:26],  # Truncate long IDs
