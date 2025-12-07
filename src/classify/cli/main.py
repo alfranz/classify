@@ -240,9 +240,7 @@ def status(batch_id):
         display_batch_status(batch_id, batch_status.value, info)
 
         if batch_status == BatchStatus.ENDED:
-            console.print(
-                f"\n[dim]Download results:[/dim] classify results {batch_id} --output results.csv"
-            )
+            console.print(f"\n[dim]Download results:[/dim] classify pull {batch_id}")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -251,9 +249,12 @@ def status(batch_id):
 
 @cli.command()
 @click.argument("batch_id")
-@click.option("--output", "-o", required=True, help="Output CSV file")
-def results(batch_id, output):
-    """Download batch results."""
+@click.option(
+    "--output", "-o", help="Output CSV file (default: <original>_classified.csv)"
+)
+@click.option("--raw", is_flag=True, help="Skip merging, output raw API results only")
+def pull(batch_id, output, raw):
+    """Download and merge batch results with original input."""
     try:
         init_classify_dir()
         global_config = load_global_config()
@@ -267,6 +268,19 @@ def results(batch_id, output):
             console.print(f"[red]Error: Batch {batch_id} not found[/red]")
             sys.exit(1)
 
+        metadata = load_batch_metadata(batch_dir)
+
+        # Determine output filename
+        if output:
+            final_output_path = Path(output)
+        else:
+            # Smart naming: use original input CSV name with _classified suffix
+            original_input = Path(metadata.input_csv_path)
+            base_name = original_input.stem.replace(
+                "_with_ids", ""
+            )  # Remove our internal suffix
+            final_output_path = Path(f"{base_name}_classified.csv")
+
         client = BatchClient(global_config.anthropic_api_key)
         response_path = batch_dir / "batch_response.jsonl"
 
@@ -276,13 +290,34 @@ def results(batch_id, output):
             progress.update(task, completed=1)
 
             errors_path = batch_dir / "errors.json"
-            task2 = progress.add_task("[cyan]Parsing results...", total=1)
-            success_count, error_count = parse_batch_results(
-                response_path, Path(output), errors_path
-            )
-            progress.update(task2, completed=1)
 
-        metadata = load_batch_metadata(batch_dir)
+            if raw:
+                # Raw mode: just parse and output API results without merging
+                task2 = progress.add_task("[cyan]Parsing results...", total=1)
+                success_count, error_count = parse_batch_results(
+                    response_path, final_output_path, errors_path
+                )
+                progress.update(task2, completed=1)
+            else:
+                # Default mode: parse to temp file then merge with original
+                temp_results = batch_dir / "temp_results.csv"
+                task2 = progress.add_task("[cyan]Parsing results...", total=1)
+                success_count, error_count = parse_batch_results(
+                    response_path, temp_results, errors_path
+                )
+                progress.update(task2, completed=1)
+
+                # Merge with original input
+                task3 = progress.add_task(
+                    "[cyan]Merging with original input...", total=1
+                )
+                input_csv_path = Path(metadata.input_csv_path)
+                merge_results(input_csv_path, temp_results, final_output_path)
+                progress.update(task3, completed=1)
+
+                # Clean up temp file
+                temp_results.unlink()
+
         metadata.batch_response_path = str(response_path)
         metadata.completed_requests = success_count
         metadata.failed_requests = error_count
@@ -290,46 +325,11 @@ def results(batch_id, output):
 
         console.print()
         display_results_summary(
-            success_count, error_count, output, errors_path if error_count > 0 else None
+            success_count,
+            error_count,
+            str(final_output_path),
+            errors_path if error_count > 0 else None,
         )
-
-    except Exception as e:
-        console.print(f"[red]Error: {e}[/red]")
-        sys.exit(1)
-
-
-@cli.command()
-@click.argument("batch_id")
-@click.option("--results", "-r", "results_file", required=True, help="Results CSV file")
-@click.option(
-    "--original",
-    "-i",
-    "original_file",
-    help="Original CSV (default: uses stored input)",
-)
-@click.option("--output", "-o", required=True, help="Output merged CSV file")
-def merge(batch_id, results_file, original_file, output):
-    """Merge classification results with original CSV."""
-    try:
-        batch_dir = get_batch_directory(batch_id)
-        if not batch_dir.exists():
-            console.print(f"[red]Error: Batch {batch_id} not found[/red]")
-            sys.exit(1)
-
-        metadata = load_batch_metadata(batch_dir)
-
-        if original_file:
-            input_csv_path = Path(original_file)
-        else:
-            input_csv_path = Path(metadata.input_csv_path)
-
-        if not input_csv_path.exists():
-            console.print(f"[red]Error: Input CSV not found: {input_csv_path}[/red]")
-            sys.exit(1)
-
-        row_count = merge_results(input_csv_path, Path(results_file), Path(output))
-
-        print_success(f"Merged {row_count:,} rows to [cyan]{output}[/cyan]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
