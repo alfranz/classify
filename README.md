@@ -84,11 +84,8 @@ classify run examples/example_config.yaml
 # Check status (processing takes ~30-60 minutes)
 classify status <batch_id>
 
-# Download results when done
-classify results <batch_id> --output results.csv
-
-# Merge with original data
-classify merge <batch_id> --results results.csv --output final.csv
+# Download and merge results when done
+classify pull <batch_id>
 ```
 
 ## Usage
@@ -170,21 +167,20 @@ classify status batch_abc123def456
 
 Batches typically complete in 30-60 minutes.
 
-### 5. Download results
+### 5. Download and merge results
 
 ```bash
-classify results batch_abc123def456 --output results.csv
+# Auto-merge with original data (creates <input>_classified.csv)
+classify pull batch_abc123def456
+
+# Or specify custom output name
+classify pull batch_abc123def456 --output my_results.csv
+
+# Get raw API results without merging (for debugging)
+classify pull batch_abc123def456 --raw
 ```
 
-### 6. Merge with original data
-
-```bash
-classify merge batch_abc123def456 \
-  --results results.csv \
-  --output final.csv
-```
-
-This adds classification columns to your original CSV.
+This automatically merges classification columns with your original CSV.
 
 ## How It Works
 
@@ -231,14 +227,10 @@ classify status <batch_id>
 # List all batches
 classify list
 
-# Download results
-classify results <batch_id> --output results.csv
-
-# Merge results with original CSV
-classify merge <batch_id> --results results.csv --output final.csv
-
-# Cancel running batch
-classify cancel <batch_id>
+# Download and merge results
+classify pull <batch_id>
+classify pull <batch_id> --output custom.csv  # Custom output name
+classify pull <batch_id> --raw                # Raw results without merging
 ```
 
 ## Output Schema

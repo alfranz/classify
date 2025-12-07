@@ -1,6 +1,5 @@
 """Tests for output schema generation for Claude Batch API."""
 
-
 from classify.core.prompt_builder import build_output_schema
 from classify.core.models import (
     ClassifyConfig,

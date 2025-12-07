@@ -36,16 +36,31 @@ src/classify/
 
 ```bash
 # Run CLI
-uv run classify --help
+classify --help
 
 # Validate config and estimate costs
-uv run classify check examples/example_config.yaml
+classify check examples/example_config.yaml
 
 # Submit batch (with confirmation)
-uv run classify run examples/example_config.yaml
+classify run examples/example_config.yaml
 
 # Dry run (generate files without submitting)
-uv run classify run examples/example_config.yaml --dry-run
+classify run examples/example_config.yaml --dry-run
+
+# Check batch status
+classify status <batch_id>
+
+# Download and merge results (auto-names output as <input>_classified.csv)
+classify pull <batch_id>
+
+# Download with custom output name
+classify pull <batch_id> --output my_results.csv
+
+# Download raw API results without merging
+classify pull <batch_id> --raw
+
+# List all batches
+classify list
 ```
 
 ## Development Commands
@@ -53,9 +68,6 @@ uv run classify run examples/example_config.yaml --dry-run
 ```bash
 # Install dependencies
 uv sync
-
-# Run with uv
-uv run classify <command>
 
 # Linting and formatting (ruff)
 uv run ruff check .              # Check for lint errors

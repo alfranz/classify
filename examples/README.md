@@ -33,6 +33,9 @@ classify check examples/example_config.yaml
 
 # Run the classification (costs ~$0.03)
 classify run examples/example_config.yaml
+
+# When complete, download and merge results
+classify pull <batch_id>
 ```
 
 ## What Gets Classified

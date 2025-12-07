@@ -52,11 +52,8 @@ classify run examples/example_config.yaml
 # Check the status
 classify status batch_abc123def456
 
-# When complete, download results
-classify results batch_abc123def456 --output results.csv
-
-# Merge with original data
-classify merge batch_abc123def456 --results results.csv --output final.csv
+# When complete, download and merge results
+classify pull batch_abc123def456
 ```
 
 ### Step 3: Create Your Own Configuration
@@ -148,14 +145,10 @@ classify status <batch_id>
 # List all batches
 classify list
 
-# Download results when complete
-classify results <batch_id> --output results.csv
-
-# Merge with original data
-classify merge <batch_id> --results results.csv --output final.csv
-
-# Cancel a running batch
-classify cancel <batch_id>
+# Download and merge results when complete
+classify pull <batch_id>
+classify pull <batch_id> --output custom.csv  # Custom output name
+classify pull <batch_id> --raw                # Raw results without merging
 ```
 
 ## Troubleshooting
