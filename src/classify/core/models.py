@@ -51,6 +51,7 @@ class InputConfig(BaseModel):
 
     file: str
     columns: list[str]
+    id_column: str | None = None
 
 
 class PromptConfig(BaseModel):
