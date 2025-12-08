@@ -113,7 +113,7 @@ class BatchIndex(BaseModel):
 class GlobalConfig(BaseModel):
     """Global configuration stored in .classify/config.json."""
 
-    anthropic_api_key: str | None = None
+    anthropic_api_key: str
     default_model: str = "claude-sonnet-4-5"
 
 
