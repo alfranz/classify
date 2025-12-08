@@ -74,6 +74,36 @@ def validate_config(config: ClassifyConfig, csv_path: Path) -> list[str]:
         f"[green]✓[/green] All referenced columns exist: [dim]{', '.join(config.input.columns)}[/dim]"
     )
 
+    # Validate id_column if specified
+    if config.input.id_column:
+        import polars as pl
+
+        df = pl.read_csv(csv_path)
+        if config.input.id_column not in df.columns:
+            messages.append(
+                f"[red]✗[/red] ID column '{config.input.id_column}' not found in CSV. "
+                f"Available columns: {', '.join(df.columns)}"
+            )
+            return messages
+
+        # Check for unique values
+        id_series = df[config.input.id_column]
+        unique_count = id_series.n_unique()
+        if unique_count != row_count:
+            messages.append(
+                f"[red]✗[/red] ID column '{config.input.id_column}' contains duplicate values. "
+                f"Found {unique_count} unique values in {row_count} rows."
+            )
+            return messages
+
+        messages.append(
+            f"[green]✓[/green] ID column valid: [dim]{config.input.id_column} ({row_count:,} unique values)[/dim]"
+        )
+    else:
+        messages.append(
+            "[green]✓[/green] ID column: [dim]will be auto-generated[/dim]"
+        )
+
     sample_row = get_sample_row(csv_path, config.input.columns)
     is_valid, error = validate_template(
         config.prompt.template, config.input.columns, sample_row
