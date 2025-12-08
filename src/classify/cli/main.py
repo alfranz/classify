@@ -163,7 +163,7 @@ def run(config_file, dry_run):
 
         csv_path = Path(config.input.file)
         input_with_ids_path = batch_dir / "input_with_ids.csv"
-        row_count = add_ids_to_csv(csv_path, input_with_ids_path)
+        row_count = add_ids_to_csv(csv_path, input_with_ids_path, config.input.id_column)
 
         batch_request_path = batch_dir / "batch_request.jsonl"
         create_batch_request(config, input_with_ids_path, batch_request_path)

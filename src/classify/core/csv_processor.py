@@ -10,20 +10,39 @@ from classify.core.console import console, create_table
 ID_COLUMN = "__classify_id"
 
 
-def add_ids_to_csv(input_path: Path, output_path: Path) -> int:
-    """Add sequential IDs to CSV file.
+def add_ids_to_csv(
+    input_path: Path, output_path: Path, id_column: str | None = None
+) -> int:
+    """Add sequential IDs to CSV file or use existing ID column.
 
     Args:
         input_path: Path to input CSV file
         output_path: Path to output CSV file with IDs
+        id_column: Optional name of existing column to use as ID.
+                   If specified, column will be renamed to __classify_id.
+                   If None, sequential IDs will be created.
 
     Returns:
         Number of rows in the CSV
+
+    Raises:
+        ValueError: If id_column is specified but doesn't exist in CSV
     """
     df = pl.read_csv(input_path)
     row_count = len(df)
 
-    df_with_ids = df.with_row_index(name=ID_COLUMN, offset=1)
+    if id_column:
+        if id_column not in df.columns:
+            raise ValueError(
+                f"ID column '{id_column}' not found in CSV. "
+                f"Available columns: {', '.join(df.columns)}"
+            )
+        # Rename the existing column to __classify_id
+        df_with_ids = df.rename({id_column: ID_COLUMN})
+    else:
+        # Create sequential IDs
+        df_with_ids = df.with_row_index(name=ID_COLUMN, offset=1)
+
     df_with_ids.write_csv(output_path)
 
     return row_count
