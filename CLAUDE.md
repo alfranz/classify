@@ -70,8 +70,7 @@ classify list
 uv sync
 
 # Linting and formatting (ruff)
-uv run ruff check .              # Check for lint errors
-uv run ruff check --fix .        # Auto-fix lint errors
+uv run ruff check --fix .        # Check and auto-fix lint errors
 uv run ruff format .             # Format code
 
 # Run tests
