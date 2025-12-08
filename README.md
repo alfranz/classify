@@ -107,6 +107,7 @@ settings:
 input:
   file: data.csv
   columns: [title, description, author]
+  id_column: user_id  # Optional: use existing column as ID (must be unique)
 
 prompt:
   system: "You are an expert at categorizing content."

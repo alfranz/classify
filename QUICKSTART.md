@@ -77,7 +77,20 @@ classify run my_config.yaml
 
 ## Configuration Tips
 
-### 1. Start Simple
+### 1. Use Existing IDs (Optional)
+
+If your CSV already has a unique ID column, you can use it instead of auto-generated IDs:
+
+```yaml
+input:
+  file: data.csv
+  columns: [text, category]
+  id_column: transaction_id  # Must exist in CSV and have unique values
+```
+
+If `id_column` is not specified, sequential IDs will be auto-generated.
+
+### 2. Start Simple
 
 Begin with a basic output schema:
 
@@ -94,7 +107,7 @@ output:
       description: "Score from 1 to 10"  # Include range in description
 ```
 
-### 2. Add Reasoning for Better Results
+### 3. Add Reasoning for Better Results
 
 Enable reasoning to get explanations:
 
@@ -103,7 +116,7 @@ settings:
   reasoning: true  # Adds <field>_reasoning for each field
 ```
 
-### 3. Use Few-Shot Examples
+### 4. Use Few-Shot Examples
 
 Include 1-3 examples for better accuracy:
 
@@ -116,7 +129,7 @@ prompt:
         category: "A"
 ```
 
-### 4. Test with Small Samples
+### 5. Test with Small Samples
 
 Create a small test CSV (5-10 rows) to validate your configuration before running on large datasets.
 
