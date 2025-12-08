@@ -100,9 +100,7 @@ def validate_config(config: ClassifyConfig, csv_path: Path) -> list[str]:
             f"[green]✓[/green] ID column valid: [dim]{config.input.id_column} ({row_count:,} unique values)[/dim]"
         )
     else:
-        messages.append(
-            "[green]✓[/green] ID column: [dim]will be auto-generated[/dim]"
-        )
+        messages.append("[green]✓[/green] ID column: [dim]will be auto-generated[/dim]")
 
     sample_row = get_sample_row(csv_path, config.input.columns)
     is_valid, error = validate_template(

@@ -152,18 +152,14 @@ def run(config_file, dry_run):
         init_classify_dir()
         global_config = load_global_config()
 
-        if not global_config.anthropic_api_key:
-            console.print(
-                "[red]Error: ANTHROPIC_API_KEY not found in environment or config[/red]"
-            )
-            sys.exit(1)
-
         temp_batch_id = f"temp_{Path(config_file).stem}"
         batch_dir = create_batch_directory(temp_batch_id, config, config_path)
 
         csv_path = Path(config.input.file)
         input_with_ids_path = batch_dir / "input_with_ids.csv"
-        row_count = add_ids_to_csv(csv_path, input_with_ids_path, config.input.id_column)
+        row_count = add_ids_to_csv(
+            csv_path, input_with_ids_path, config.input.id_column
+        )
 
         batch_request_path = batch_dir / "batch_request.jsonl"
         create_batch_request(config, input_with_ids_path, batch_request_path)
@@ -218,10 +214,6 @@ def status(batch_id):
         init_classify_dir()
         global_config = load_global_config()
 
-        if not global_config.anthropic_api_key:
-            console.print("[red]Error: ANTHROPIC_API_KEY not found[/red]")
-            sys.exit(1)
-
         batch_dir = get_batch_directory(batch_id)
         if not batch_dir.exists():
             console.print(f"[red]Error: Batch {batch_id} not found[/red]")
@@ -258,10 +250,6 @@ def pull(batch_id, output, raw):
     try:
         init_classify_dir()
         global_config = load_global_config()
-
-        if not global_config.anthropic_api_key:
-            console.print("[red]Error: ANTHROPIC_API_KEY not found[/red]")
-            sys.exit(1)
 
         batch_dir = get_batch_directory(batch_id)
         if not batch_dir.exists():
@@ -419,10 +407,6 @@ def cancel(batch_id):
     try:
         init_classify_dir()
         global_config = load_global_config()
-
-        if not global_config.anthropic_api_key:
-            console.print("[red]Error: ANTHROPIC_API_KEY not found[/red]")
-            sys.exit(1)
 
         batch_dir = get_batch_directory(batch_id)
         if not batch_dir.exists():

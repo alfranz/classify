@@ -25,6 +25,11 @@ def init_classify_dir() -> None:
 
     if not GLOBAL_CONFIG_FILE.exists():
         api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "ANTHROPIC_API_KEY environment variable must be set. "
+                "Please set it using: export ANTHROPIC_API_KEY='your-key-here'"
+            )
         config = GlobalConfig(anthropic_api_key=api_key)
         save_global_config(config)
 
@@ -37,16 +42,27 @@ def load_global_config() -> GlobalConfig:
     """Load global configuration."""
     if not GLOBAL_CONFIG_FILE.exists():
         api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "ANTHROPIC_API_KEY environment variable must be set. "
+                "Please set it using: export ANTHROPIC_API_KEY='your-key-here'"
+            )
         return GlobalConfig(anthropic_api_key=api_key)
 
     with open(GLOBAL_CONFIG_FILE) as f:
         data = json.load(f)
-    config = GlobalConfig(**data)
 
-    if not config.anthropic_api_key:
-        config.anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+    # If API key not in config file, try environment variable
+    if "anthropic_api_key" not in data or not data["anthropic_api_key"]:
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "ANTHROPIC_API_KEY not found in config file or environment. "
+                "Please set it using: export ANTHROPIC_API_KEY='your-key-here'"
+            )
+        data["anthropic_api_key"] = api_key
 
-    return config
+    return GlobalConfig(**data)
 
 
 def save_global_config(config: GlobalConfig) -> None:
