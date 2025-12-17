@@ -31,10 +31,12 @@ def parse_batch_results(
 
             record = json.loads(line)
             custom_id = record.get("custom_id", "")
+            # Extract row ID from custom_id (format: "row_<id>")
+            # Keep as string since IDs can be non-numeric (e.g., Salesforce IDs)
             row_id = (
-                int(custom_id.replace("row_", ""))
+                custom_id.replace("row_", "")
                 if custom_id.startswith("row_")
-                else 0
+                else custom_id
             )
 
             result = record.get("result")
