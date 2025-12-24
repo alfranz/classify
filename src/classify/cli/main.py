@@ -18,6 +18,7 @@ from classify.core.storage import (
     load_batch_index,
     load_batch_metadata,
     load_global_config,
+    save_batch_index,
     save_batch_metadata,
 )
 from classify.core.validator import ValidationError, run_preflight_check
@@ -174,25 +175,33 @@ def run(config_file, dry_run):
         batch_id = client.create_batch(batch_request_path)
 
         actual_batch_dir = get_batch_directory(batch_id)
-        batch_dir.rename(actual_batch_dir)
+
+        actual_batch_dir.mkdir(parents=True, exist_ok=True)
+
+        for file_name in [
+            "metadata.json",
+            "input_with_ids.csv",
+            "batch_request.jsonl",
+            "config.yaml",
+        ]:
+            src = batch_dir / file_name
+            dst = actual_batch_dir / file_name
+            if src.exists():
+                src.rename(dst)
+
+        if batch_dir.exists():
+            batch_dir.rmdir()
 
         metadata = load_batch_metadata(actual_batch_dir)
         metadata.batch_id = batch_id
         metadata.total_requests = row_count
         metadata.status = BatchStatus.IN_PROGRESS
 
-        # Update paths to point to the actual batch directory
-        metadata.input_csv_path = str(actual_batch_dir / "input_with_ids.csv")
-        metadata.batch_request_path = str(actual_batch_dir / "batch_request.jsonl")
-        metadata.config_path = str(actual_batch_dir / "config.yaml")
-
         save_batch_metadata(actual_batch_dir, metadata)
 
         index = load_batch_index()
         del index.batches[temp_batch_id]
         index.batches[batch_id] = metadata
-        from classify.core.storage import save_batch_index
-
         save_batch_index(index)
 
         print_success(f"Batch submitted: [cyan]{batch_id}[/cyan]")
