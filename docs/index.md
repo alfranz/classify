@@ -162,3 +162,7 @@ Your CSV (10,000 rows)
 
 - [Usage Guide](usage.md) - Complete walkthrough with all commands
 - [Configuration](configuration.md) - Learn how to write config files
+
+---
+
+*Documentation automatically deployed via GitHub Actions*
