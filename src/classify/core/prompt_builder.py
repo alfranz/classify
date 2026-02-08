@@ -98,23 +98,6 @@ def validate_template(
         return False, f"Template validation error: {str(e)}"
 
 
-def build_few_shot_messages(config: ClassifyConfig) -> list[dict[str, Any]]:
-    """Build few-shot example messages.
-
-    Args:
-        config: Classification configuration
-
-    Returns:
-        List of user/assistant message pairs
-    """
-    messages = []
-    for example in config.prompt.examples:
-        user_content = render_prompt_template(config.prompt.template, example.input)
-        messages.append({"role": "user", "content": user_content})
-        messages.append({"role": "assistant", "content": json.dumps(example.output)})
-    return messages
-
-
 def create_batch_request(
     config: ClassifyConfig,
     csv_path: Path,
@@ -132,7 +115,6 @@ def create_batch_request(
     """
     df = pl.read_csv(csv_path)
     schema = build_output_schema(config)
-    few_shot_messages = build_few_shot_messages(config)
 
     with open(output_path, "w") as f:
         for row in df.iter_rows(named=True):
@@ -150,26 +132,9 @@ def create_batch_request(
                             "cache_control": {"type": "ephemeral"},
                         }
                     ],
-                }
+                },
+                {"role": "user", "content": user_prompt},
             ]
-
-            if few_shot_messages:
-                messages.extend(few_shot_messages[:-1])
-                last_example = few_shot_messages[-1]
-                messages.append(
-                    {
-                        "role": last_example["role"],
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": last_example["content"],
-                                "cache_control": {"type": "ephemeral"},
-                            }
-                        ],
-                    }
-                )
-
-            messages.append({"role": "user", "content": user_prompt})
 
             request = {
                 "custom_id": f"row_{row_id}",
@@ -210,16 +175,9 @@ def estimate_tokens(
         Tuple of (cached_tokens, input_tokens, output_tokens)
     """
     system_tokens = _estimate_tokens(config.prompt.system)
-
-    few_shot_tokens = 0
-    for example in config.prompt.examples:
-        user_msg = render_prompt_template(config.prompt.template, example.input)
-        assistant_msg = json.dumps(example.output)
-        few_shot_tokens += _estimate_tokens(user_msg) + _estimate_tokens(assistant_msg)
-
     schema_tokens = _estimate_tokens(json.dumps(build_output_schema(config)))
 
-    cached_tokens = system_tokens + few_shot_tokens + schema_tokens
+    cached_tokens = system_tokens + schema_tokens
 
     user_prompt = render_prompt_template(config.prompt.template, sample_row)
     input_tokens = _estimate_tokens(user_prompt)

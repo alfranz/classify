@@ -22,29 +22,6 @@ prompt:
     Context: {context}
     Time: {timestamp}
 
-  examples:
-    - input:
-        excuse: "My dog ate my car keys"
-        context: "I had to search the house for 30 minutes and then call a locksmith"
-        timestamp: "2024-03-10 09:15"
-      output:
-        believability: "unlikely"
-        creativity_score: 4
-        category: "pet_related"
-        should_accept: false
-        confidence: 0.85
-
-    - input:
-        excuse: "There was a water main break and they closed the street"
-        context: "The entire block was flooded, fire trucks everywhere. I can send you the news article."
-        timestamp: "2024-03-12 10:00"
-      output:
-        believability: "highly_believable"
-        creativity_score: 1
-        category: "infrastructure"
-        should_accept: true
-        confidence: 0.95
-
 output:
   fields:
     - name: believability

@@ -12,7 +12,6 @@ from classify.core.csv_processor import get_sample_row, add_ids_to_csv
 from classify.core.prompt_builder import (
     create_batch_request,
     render_prompt_template,
-    build_few_shot_messages,
 )
 from classify.core.models import (
     ClassifyConfig,
@@ -22,7 +21,6 @@ from classify.core.models import (
     OutputConfig,
     OutputField,
     FieldType,
-    FewShotExample,
 )
 
 
@@ -165,39 +163,3 @@ class TestColumnFiltering:
         assert "2024-01-01" not in user_message
         assert "greeting" not in user_message
         assert "active" not in user_message
-
-    def test_few_shot_examples_use_template_with_filtered_columns(self) -> None:
-        """Test that few-shot examples only use columns in template."""
-        config = ClassifyConfig(
-            settings=Settings(model="claude-sonnet-4-5"),
-            input=InputConfig(file="test.csv", columns=["title", "body"]),
-            prompt=PromptConfig(
-                system="Classify reviews.",
-                template="Title: {title}\nBody: {body}",
-                examples=[
-                    FewShotExample(
-                        input={"title": "Great", "body": "Loved it"},
-                        output={"sentiment": "positive"},
-                    ),
-                ],
-            ),
-            output=OutputConfig(
-                fields=[
-                    OutputField(
-                        name="sentiment",
-                        type=FieldType.STRING,
-                        description="Sentiment",
-                    )
-                ]
-            ),
-        )
-
-        messages = build_few_shot_messages(config)
-
-        # Should have user + assistant message pair
-        assert len(messages) == 2
-        user_msg = messages[0]
-        assert user_msg["role"] == "user"
-        # Should use template with example input
-        assert "Title: Great" in user_msg["content"]
-        assert "Body: Loved it" in user_msg["content"]

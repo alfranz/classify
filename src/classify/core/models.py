@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -31,13 +30,6 @@ class OutputField(BaseModel):
     multiple_of: int | float | None = None
 
 
-class FewShotExample(BaseModel):
-    """Few-shot example for prompt."""
-
-    input: dict[str, Any]
-    output: dict[str, Any]
-
-
 class Settings(BaseModel):
     """Global settings for classification."""
 
@@ -59,7 +51,6 @@ class PromptConfig(BaseModel):
 
     system: str
     template: str
-    examples: list[FewShotExample] = Field(default_factory=list)
 
 
 class OutputConfig(BaseModel):

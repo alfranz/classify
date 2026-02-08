@@ -2,8 +2,10 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 from anthropic import Anthropic
+from anthropic.types.messages import batch_create_params
 
 from classify.core.models import BatchStatus
 
@@ -23,6 +25,31 @@ class BatchClient:
                 "anthropic-beta": "structured-outputs-2025-11-13,prompt-caching-2024-07-31"
             },
         )
+
+    def create_batch_from_requests(self, requests: list[dict[str, Any]]) -> str:
+        """Create a new batch job from in-memory request dicts.
+
+        Args:
+            requests: List of batch request dictionaries.
+
+        Returns:
+            Batch ID
+        """
+        typed_requests: list[batch_create_params.Request] = requests  # type: ignore[assignment]
+        batch = self.client.messages.batches.create(requests=typed_requests)
+        return batch.id
+
+    def get_results_as_dicts(self, batch_id: str) -> list[dict]:
+        """Download batch results as in-memory dicts.
+
+        Args:
+            batch_id: Batch ID
+
+        Returns:
+            List of result dictionaries
+        """
+        results = self.client.messages.batches.results(batch_id)
+        return [result.model_dump() for result in results]
 
     def create_batch(self, request_file_path: Path) -> str:
         """Create a new batch job.

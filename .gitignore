@@ -52,6 +52,9 @@ htmlcov/
 .claude
 .python-version
 
+# Plans
+plans/
+
 # MkDocs
 site/
 docs/assets/copy-to-llm/

@@ -83,7 +83,7 @@ def display_cost_estimate(estimate, row_count: int) -> None:
     token_table.add_column("Note", style="dim")
 
     token_table.add_row(
-        "Cached (system + examples + schema)",
+        "Cached (system + schema)",
         f"~{estimate.cached_tokens:,}",
         "Cached after first request",
     )
