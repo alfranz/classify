@@ -1,0 +1,11 @@
+# classify
+
+> CLI tool for LLM-based CSV classification using Claude's Batch API
+
+CLI tool for LLM-based CSV classification using Claude's Batch API. Enables cost-effective batch classification with structured outputs, prompt caching, and automatic result merging.
+
+
+## API Reference
+
+- [classify](https://github.com/alfranz/classify/instructions/index.md)
+
