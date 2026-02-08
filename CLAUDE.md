@@ -116,6 +116,16 @@ Run tests with:
 uv run pytest tests/ -v
 ```
 
+### Integration Tests
+
+Integration tests hit the real Anthropic Batch API and cost real money (~$0.01 per run). Only run these when making high-level API changes (e.g. request format, batch client, SDK public interface). They take ~5-7 minutes as all batches are submitted in parallel.
+
+```bash
+uv run pytest tests/test_integration.py -v -s --run-integration
+```
+
+Requires `ANTHROPIC_API_KEY` set in the environment.
+
 ## Important Patterns
 
 - All CLI commands are in `cli/main.py` as Click commands

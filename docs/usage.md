@@ -72,15 +72,6 @@ prompt:
     Description: {description}
     Author: {author}
 
-  examples:  # Optional but improves accuracy
-    - input:
-        title: "How to bake sourdough"
-        description: "A guide to making bread"
-        author: "Chef Mike"
-      output:
-        category: "cooking"
-        confidence: 5
-
 output:
   fields:
     - name: category
@@ -177,33 +168,10 @@ output:
 
 With `reasoning: true`, you also get `{field}_reasoning` columns explaining each classification.
 
-## Few-Shot Examples
-
-Add examples to improve accuracy:
-
-```yaml
-prompt:
-  examples:
-    - input:
-        text: "This product is amazing!"
-      output:
-        sentiment: "positive"
-        score: 9
-
-    - input:
-        text: "Worst purchase ever"
-      output:
-        sentiment: "negative"
-        score: 2
-```
-
-Examples are cached, so they're nearly free after the first request.
-
 ## Tips
 
 - **Start small**: Test with 10-50 rows first to validate your config
 - **Use reasoning**: Adds cost but dramatically improves accuracy and gives you explanations
-- **Add examples**: 2-3 good examples often beat a long system prompt
 - **Check costs first**: Always run `classify check` before submitting
 - **Batch wisely**: Default 10k batch size works well; split larger datasets into multiple batches
 

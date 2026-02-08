@@ -52,66 +52,6 @@ class TestYamlConfigParsing:
         assert config.output.fields[0].name == "category"
         assert config.output.fields[0].type == FieldType.STRING
 
-    def test_valid_full_config_with_examples(self, tmp_path: Path) -> None:
-        """Test parsing a full configuration with few-shot examples."""
-        config_data = {
-            "settings": {
-                "reasoning": True,
-                "batch_size": 5000,
-                "model": "claude-haiku-4-5",
-            },
-            "input": {
-                "file": "reviews.csv",
-                "columns": ["title", "body"],
-            },
-            "prompt": {
-                "system": "Classify product reviews.",
-                "template": "Title: {title}\nBody: {body}",
-                "examples": [
-                    {
-                        "input": {"title": "Great!", "body": "Loved it"},
-                        "output": {"sentiment": "positive", "score": 5},
-                    },
-                    {
-                        "input": {"title": "Awful", "body": "Terrible product"},
-                        "output": {"sentiment": "negative", "score": 1},
-                    },
-                ],
-            },
-            "output": {
-                "fields": [
-                    {
-                        "name": "sentiment",
-                        "type": "string",
-                        "description": "Sentiment",
-                        "enum": ["positive", "negative", "neutral"],
-                    },
-                    {
-                        "name": "score",
-                        "type": "integer",
-                        "description": "Score 1-5",
-                    },
-                ]
-            },
-        }
-        config_path = tmp_path / "config.yaml"
-        config_path.write_text(yaml.dump(config_data))
-
-        config = load_config(config_path)
-
-        assert config.settings.reasoning is True
-        assert config.settings.batch_size == 5000
-        assert config.settings.model == "claude-haiku-4-5"
-        assert config.input.columns == ["title", "body"]
-        assert len(config.prompt.examples) == 2
-        assert config.prompt.examples[0].input == {
-            "title": "Great!",
-            "body": "Loved it",
-        }
-        assert config.prompt.examples[0].output == {"sentiment": "positive", "score": 5}
-        assert len(config.output.fields) == 2
-        assert config.output.fields[0].enum == ["positive", "negative", "neutral"]
-
     def test_missing_required_field_raises_error(self, tmp_path: Path) -> None:
         """Test that missing required fields raise ValidationError."""
         # Missing 'input' section

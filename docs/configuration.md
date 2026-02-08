@@ -22,8 +22,6 @@ prompt:
     
     Title: {title}
     Description: {description}
-  examples: []
-
 output:
   fields:
     - name: category
@@ -127,32 +125,6 @@ prompt:
     Author: {author}
 ```
 
-### `examples`
-
-**Optional** but highly recommended
-
-Few-shot examples to improve accuracy. Each example needs `input` (matching your column names) and `output` (matching your output fields).
-
-```yaml
-prompt:
-  examples:
-    - input:
-        title: "How to bake sourdough"
-        description: "A guide to making bread"
-        author: "Chef Mike"
-      output:
-        category: "cooking"
-        confidence: 5
-        
-    - input:
-        title: "Python tutorial"
-        description: "Learn Python basics"
-        author: "Dev Jane"
-      output:
-        category: "tech"
-        confidence: 5
-```
-
 ## Output
 
 ### `fields`
@@ -213,25 +185,6 @@ prompt:
     
     Provide sentiment analysis and key themes.
   
-  examples:
-    - input:
-        product_name: "Wireless Headphones"
-        review_text: "Amazing sound quality and battery life!"
-        rating: 5
-      output:
-        sentiment: "positive"
-        themes: ["sound quality", "battery life"]
-        quality_score: 5
-        
-    - input:
-        product_name: "USB Cable"
-        review_text: "Stopped working after 2 days. Waste of money."
-        rating: 1
-      output:
-        sentiment: "negative"
-        themes: ["durability", "defective"]
-        quality_score: 2
-
 output:
   fields:
     - name: sentiment

@@ -60,7 +60,6 @@ def init(config_file):
         "prompt": {
             "system": "You are a helpful assistant that classifies data.",
             "template": "Classify this item:\n\nColumn 1: {column1}\nColumn 2: {column2}",
-            "examples": [],
         },
         "output": {
             "fields": [
