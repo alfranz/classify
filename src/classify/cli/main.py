@@ -56,7 +56,11 @@ def init(config_file):
             "batch_size": 10000,
             "model": "claude-sonnet-4-5-20250929",
         },
-        "input": {"file": "input.csv", "columns": ["column1", "column2"]},
+        "input": {
+            "file": "input.csv",
+            "columns": ["column1", "column2"],
+            "id_column": "id",
+        },
         "prompt": {
             "system": "You are a helpful assistant that classifies data.",
             "template": "Classify this item:\n\nColumn 1: {column1}\nColumn 2: {column2}",
@@ -70,9 +74,19 @@ def init(config_file):
                     "enum": ["category1", "category2", "category3"],
                 },
                 {
-                    "name": "confidence",
+                    "name": "score",
                     "type": "integer",
-                    "description": "Confidence score from 1-5",
+                    "description": "Score from 1-5",
+                },
+                {
+                    "name": "confidence",
+                    "type": "number",
+                    "description": "Confidence from 0.0 to 1.0",
+                },
+                {
+                    "name": "is_flagged",
+                    "type": "boolean",
+                    "description": "Whether the item should be flagged for review",
                 },
             ]
         },

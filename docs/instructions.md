@@ -42,14 +42,6 @@ prompt:
   system: "System prompt describing task"
   template: |
     Format with {col1} and {col2} placeholders
-  examples:                          # few-shot examples
-    - input:
-        col1: "value"
-        col2: "value"
-      output:
-        field1: "value"
-        field2: 5
-
 output:
   fields:
     - name: field1                   # lowercase, no spaces
@@ -63,7 +55,7 @@ output:
 
 ## API Integration
 
-Uses Claude's Batch API with 50% discount on all tokens. Prompt caching enabled: system prompt + examples cached once (90% cheaper on subsequent reads). No rate limits. Processing time ~30-60 minutes. Automatic retry on failures.
+Uses Claude's Batch API. Prompt caching enabled: system prompt + schema cached once for cheaper subsequent reads. No rate limits. Processing time ~30-60 minutes. Automatic retry on failures.
 
 ## Output
 

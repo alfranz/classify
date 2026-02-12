@@ -26,23 +26,11 @@
 
 Stop writing loops to classify data. `classify` turns CSV classification into a single command, handles batching automatically, and gives you prompt caching for free.
 
-Pay **50% less**, get results in ~1 hour, no rate limits.
-
-## Why?
-
-You have a CSV with 10,000 rows. Each needs classification. You could:
-
-- Loop through rows → pay full price, wait 3 hours, hit rate limits
-- Use Claude's Batch API → pay **50% less**, wait 1 hour, no rate limits
-
-This tool does the second one for you.
-
 ## Features
 
 - **Automatic batching** - Point at your CSV, get classified data back
 - **Structured outputs** - Define your schema, get valid JSON every time
-- **Prompt caching** - System prompt cached across all rows (90% cost reduction on cache hits)
-- **50% batch discount** - Automatically applied to all tokens
+- **Prompt caching** - System prompt cached across all rows for significant savings
 - **Cost estimation** - See exact costs before submitting
 - **Reasoning support** - Get explanations for each classification
 - **Progress tracking** - Check status, download results when ready
@@ -78,7 +66,7 @@ Try the included example:
 # Check the example and see cost estimate
 classify check examples/example_config.yaml
 
-# Submit the batch (costs ~$0.02)
+# Submit the batch
 classify run examples/example_config.yaml
 
 # Check status (processing takes ~30-60 minutes)
@@ -119,15 +107,6 @@ prompt:
     Description: {description}
     Author: {author}
 
-  examples:  # Optional but improves accuracy
-    - input:
-        title: "How to bake sourdough"
-        description: "A guide to making bread"
-        author: "Chef Mike"
-      output:
-        category: "cooking"
-        confidence: 5
-
 output:
   fields:
     - name: category
@@ -135,9 +114,17 @@ output:
       description: "The content category"
       enum: ["cooking", "tech", "sports", "other"]
 
-    - name: confidence
+    - name: score
       type: integer
-      description: "Confidence from 1-5"
+      description: "Score from 1-5"
+
+    - name: confidence
+      type: number
+      description: "Confidence from 0.0 to 1.0"
+
+    - name: is_flagged
+      type: boolean
+      description: "Whether the item should be flagged for review"
 ```
 
 ### 2. Validate and estimate costs
@@ -191,8 +178,7 @@ Your CSV (10,000 rows)
     [classify]
          ↓
     Claude's Batch API
-    - 50% discount on all tokens
-    - Prompt caching (90% cheaper cache hits)
+    - Prompt caching (cheaper cache hits)
     - No rate limits
     - ~1 hour processing
          ↓
@@ -200,14 +186,9 @@ Your CSV (10,000 rows)
 ```
 
 Each row becomes a separate API request with:
-- **Cached**: System prompt + examples + schema (same for all rows)
+- **Cached**: System prompt + schema (same for all rows)
 - **Input**: Your row data (unique per row)
 - **Output**: Structured classification result
-
-**Cost example** (10,000 rows):
-- First request: Write cache (~$0.20)
-- Other 9,999 requests: Read cache (~$0.02) + input tokens (~$5) + output tokens (~$3)
-- **Total**: ~$8.22 instead of ~$80+ without batching/caching
 
 ## Commands
 
@@ -261,59 +242,12 @@ output:
 
 With `reasoning: true`, you also get `{field}_reasoning` columns explaining each classification.
 
-## Few-Shot Examples
-
-Add examples to improve accuracy:
-
-```yaml
-prompt:
-  examples:
-    - input:
-        text: "This product is amazing!"
-      output:
-        sentiment: "positive"
-        score: 9
-
-    - input:
-        text: "Worst purchase ever"
-      output:
-        sentiment: "negative"
-        score: 2
-```
-
-Examples are cached, so they're nearly free after the first request.
-
 ## Tips
 
 - **Start small**: Test with 10-50 rows first to validate your config
 - **Use reasoning**: Adds cost but dramatically improves accuracy and gives you explanations
-- **Add examples**: 2-3 good examples often beat a long system prompt
-- **Check costs first**: Always run `classify check` before submitting
+- **Preview before submitting**: Run `classify check` to validate your config and see cost estimates
 - **Batch wisely**: Default 10k batch size works well; split larger datasets into multiple batches
-
-## Pricing
-
-Uses Claude's Batch API pricing (50% off standard rates):
-
-| Cost Type | Sonnet 4.5 | Haiku 4.5 |
-|-----------|------------|-----------|
-| Input tokens | $1.50/MTok | $0.50/MTok |
-| Output tokens | $15/MTok | $2.50/MTok |
-| Cache writes | $1.875/MTok | $1.25/MTok |
-| Cache reads | $0.15/MTok | $0.10/MTok |
-
-**Example calculation** (1,000 rows, ~200 token rows, ~100 token outputs):
-
-| Cost Component | Sonnet 4.5 | Haiku 4.5 |
-|----------------|------------|-----------|
-| Cache write (1 request) | $0.02 | $0.01 |
-| Cache reads (999 requests) | $0.002 | $0.001 |
-| Input tokens (1000 × 200) | $0.30 | $0.10 |
-| Output tokens (1000 × 100) | $1.50 | $0.25 |
-| **Total** | **~$1.82** | **~$0.36** |
-
-Without batching: ~$3.64 (Sonnet) / ~$0.72 (Haiku)
-Without caching: ~$20 (Sonnet) / ~$3.50 (Haiku)
 
 ## License
 
@@ -321,4 +255,4 @@ MIT
 
 ## Questions?
 
-Check the [QUICKSTART.md](QUICKSTART.md) for detailed walkthroughs and troubleshooting.
+Check the [documentation](docs/) for detailed walkthroughs and configuration reference.
