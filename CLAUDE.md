@@ -89,7 +89,7 @@ All batch state stored in `.classify/` directory:
 - `batch_<id>/` - Per-batch state (metadata, request/response JSONL, errors)
 
 ### Prompt Caching Strategy
-System prompt, examples, and JSON schema are marked with `cache_control: {"type": "ephemeral"}` to enable caching. First request writes cache, subsequent requests read from cache (90% cheaper).
+System prompt and JSON schema are marked with `cache_control: {"type": "ephemeral"}` to enable caching. First request writes cache, subsequent requests read from cache.
 
 ### Row Tracking
 Input CSV gets `__classify_id` column added. Batch requests use `custom_id: "row_<id>"` for reliable result merging.
@@ -99,7 +99,7 @@ Input CSV gets `__classify_id` column added. Batch requests use `custom_id: "row
 YAML config with sections:
 - `settings` - model, reasoning flag, batch_size
 - `input` - CSV file path and columns to use
-- `prompt` - system prompt, template with `{column}` placeholders, few-shot examples
+- `prompt` - system prompt, template with `{column}` placeholders
 - `output` - field definitions (name, type, description, optional enum)
 
 See `examples/example_config.yaml` for complete example.
