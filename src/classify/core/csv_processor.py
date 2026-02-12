@@ -9,6 +9,35 @@ from classify.core.console import console, create_table
 
 ID_COLUMN = "__classify_id"
 
+# Separators to try, in order of preference
+_SEPARATOR_CANDIDATES = [",", ";", "\t", "|"]
+
+
+def detect_separator(csv_path: Path) -> str:
+    """Detect the column separator used in a CSV file.
+
+    Reads the first line (header) and picks the separator candidate
+    that appears the most times. Falls back to comma if none found.
+
+    Args:
+        csv_path: Path to CSV file
+
+    Returns:
+        The detected separator character
+    """
+    with open(csv_path, encoding="utf-8-sig") as f:
+        first_line = f.readline()
+
+    best_sep = ","
+    best_count = 0
+    for sep in _SEPARATOR_CANDIDATES:
+        count = first_line.count(sep)
+        if count > best_count:
+            best_count = count
+            best_sep = sep
+
+    return best_sep
+
 
 def add_ids_to_csv(
     input_path: Path, output_path: Path, id_column: str | None = None
@@ -28,7 +57,8 @@ def add_ids_to_csv(
     Raises:
         ValueError: If id_column is specified but doesn't exist in CSV
     """
-    df = pl.read_csv(input_path)
+    sep = detect_separator(input_path)
+    df = pl.read_csv(input_path, separator=sep)
     row_count = len(df)
 
     if id_column:
@@ -61,7 +91,8 @@ def validate_csv(
         Tuple of (is_valid, error_message, row_count, column_count)
     """
     try:
-        df = pl.read_csv(csv_path)
+        sep = detect_separator(csv_path)
+        df = pl.read_csv(csv_path, separator=sep)
         row_count = len(df)
         column_count = len(df.columns)
 
@@ -89,7 +120,8 @@ def get_sample_row(csv_path: Path, columns: list[str] | None = None) -> dict[str
     Returns:
         Dictionary with column names as keys and first row values as strings
     """
-    df = pl.read_csv(csv_path, n_rows=1)
+    sep = detect_separator(csv_path)
+    df = pl.read_csv(csv_path, n_rows=1, separator=sep)
     if len(df) == 0:
         return {}
     cols_to_use = columns if columns else df.columns
@@ -153,8 +185,10 @@ def merge_results(
     Returns:
         Number of rows in merged output
     """
-    input_df = pl.read_csv(input_csv_path)
-    results_df = pl.read_csv(results_csv_path)
+    input_sep = detect_separator(input_csv_path)
+    input_df = pl.read_csv(input_csv_path, separator=input_sep)
+    results_sep = detect_separator(results_csv_path)
+    results_df = pl.read_csv(results_csv_path, separator=results_sep)
 
     merged = input_df.join(results_df, on=ID_COLUMN, how="left")
     merged.write_csv(output_path)

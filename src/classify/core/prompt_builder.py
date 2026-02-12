@@ -6,6 +6,7 @@ from typing import Any
 
 import polars as pl
 
+from classify.core.csv_processor import detect_separator
 from classify.core.models import ClassifyConfig
 
 
@@ -113,7 +114,8 @@ def create_batch_request(
     Returns:
         Number of requests generated
     """
-    df = pl.read_csv(csv_path)
+    sep = detect_separator(csv_path)
+    df = pl.read_csv(csv_path, separator=sep)
     schema = build_output_schema(config)
 
     with open(output_path, "w") as f:

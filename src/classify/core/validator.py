@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from classify.core.csv_processor import get_sample_row, validate_csv
+from classify.core.csv_processor import detect_separator, get_sample_row, validate_csv
 from classify.core.models import (
     MODEL_PRICING,
     ClassifyConfig,
@@ -78,7 +78,8 @@ def validate_config(config: ClassifyConfig, csv_path: Path) -> list[str]:
     if config.input.id_column:
         import polars as pl
 
-        df = pl.read_csv(csv_path)
+        sep = detect_separator(csv_path)
+        df = pl.read_csv(csv_path, separator=sep)
         if config.input.id_column not in df.columns:
             messages.append(
                 f"[red]✗[/red] ID column '{config.input.id_column}' not found in CSV. "
@@ -140,7 +141,8 @@ def calculate_cost(config: ClassifyConfig, csv_path: Path) -> CostEstimate:
     """
     import polars as pl
 
-    df = pl.read_csv(csv_path)
+    sep = detect_separator(csv_path)
+    df = pl.read_csv(csv_path, separator=sep)
     total_requests = len(df)
 
     sample_row = get_sample_row(csv_path, config.input.columns)
