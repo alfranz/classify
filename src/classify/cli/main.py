@@ -209,6 +209,11 @@ def run(config_file, dry_run):
         metadata.batch_id = batch_id
         metadata.total_requests = row_count
         metadata.status = BatchStatus.IN_PROGRESS
+        # Update paths to point to actual batch directory (not temp)
+        metadata.input_csv_path = str(actual_batch_dir / "input_with_ids.csv")
+        metadata.batch_request_path = str(actual_batch_dir / "batch_request.jsonl")
+        metadata.config_path = str(actual_batch_dir / "config.yaml")
+        metadata.errors_path = str(actual_batch_dir / "errors.json")
 
         save_batch_metadata(actual_batch_dir, metadata)
 
