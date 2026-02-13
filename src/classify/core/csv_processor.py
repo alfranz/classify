@@ -190,6 +190,11 @@ def merge_results(
     results_sep = detect_separator(results_csv_path)
     results_df = pl.read_csv(results_csv_path, separator=results_sep)
 
+    # Cast ID column to string on both sides to prevent type mismatch
+    # (auto-generated IDs are integers, but results always store IDs as strings)
+    input_df = input_df.with_columns(pl.col(ID_COLUMN).cast(pl.Utf8))
+    results_df = results_df.with_columns(pl.col(ID_COLUMN).cast(pl.Utf8))
+
     merged = input_df.join(results_df, on=ID_COLUMN, how="left")
     merged.write_csv(output_path)
 
