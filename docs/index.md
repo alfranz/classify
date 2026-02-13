@@ -8,7 +8,7 @@ hide:
 
 <div class="hero" markdown>
   <p class="hero-tagline">Classify thousands of CSV rows with Claude's Batch API</p>
-  <p class="hero-subtitle">Pay <strong>50% less</strong>, get results in ~1 hour, no rate limits</p>
+  <p class="hero-subtitle">Pay <strong>50% less</strong>, get results in ~10 minutes, no rate limits</p>
   <p class="hero-cta">
     <a href="usage/#quick-start" class="md-button md-button--primary">Get Started</a>
     <a href="https://github.com/alfranz/classify" class="md-button">GitHub</a>
@@ -54,37 +54,37 @@ graph LR
 
 <div class="grid cards" markdown>
 
--   :material-rocket-launch:{ .lg .middle } **Automatic Batching**
+- :material-rocket-launch:{ .lg .middle } **Automatic Batching**
 
     ---
 
     Point at your CSV, get classified data back. No manual batch management needed.
 
--   :material-format-list-bulleted:{ .lg .middle } **Structured Outputs**
+- :material-format-list-bulleted:{ .lg .middle } **Structured Outputs**
 
     ---
 
     Define your schema, get valid JSON every time with Pydantic validation.
 
--   :material-cached:{ .lg .middle } **Prompt Caching**
+- :material-cached:{ .lg .middle } **Prompt Caching**
 
     ---
 
     System prompt cached across all rows for 90% cost reduction on cache hits.
 
--   :material-currency-usd:{ .lg .middle } **50% Batch Discount**
+- :material-currency-usd:{ .lg .middle } **50% Batch Discount**
 
     ---
 
     Automatically applied to all tokens. Pay half the price of regular API calls.
 
--   :material-calculator:{ .lg .middle } **Cost Estimation**
+- :material-calculator:{ .lg .middle } **Cost Estimation**
 
     ---
 
     See exact costs before submitting your batch job.
 
--   :material-brain:{ .lg .middle } **Reasoning Support**
+- :material-brain:{ .lg .middle } **Reasoning Support**
 
     ---
 
@@ -127,36 +127,6 @@ classify status <batch_id>
 # Download and merge results when done
 classify pull <batch_id>
 ```
-
-## Why Batch API?
-
-You have a CSV with 10,000 rows. Each needs classification. You could:
-
-| Approach | Cost | Time | Rate Limits |
-|----------|------|------|-------------|
-| Loop through rows | Full price | ~3 hours | Hit limits |
-| **Batch API** | **50% less** | **~1 hour** | **None** |
-
-## How It Works
-
-```
-Your CSV (10,000 rows)
-         ↓
-    [classify]
-         ↓
-    Claude's Batch API
-    - 50% discount on all tokens
-    - Prompt caching (90% cheaper cache hits)
-    - No rate limits
-    - ~1 hour processing
-         ↓
-    Classified CSV
-```
-
-**Cost example** (10,000 rows):
-- First request: Write cache (~$0.20)
-- Other 9,999 requests: Read cache (~$0.02) + input tokens (~$5) + output tokens (~$3)
-- **Total**: ~$8.22 instead of ~$80+ without batching/caching
 
 ## Next Steps
 
